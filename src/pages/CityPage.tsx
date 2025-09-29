@@ -5,6 +5,8 @@ import { categoryLabels, ProfessionalCategory } from '@/types/professional';
 import { ProfessionalCard } from '@/components/ProfessionalCard';
 import { SearchBar } from '@/components/SearchBar';
 import { Breadcrumb } from '@/components/Breadcrumb';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 const CityPage = () => {
   const { category, city } = useParams<{ category: string; city: string }>();
@@ -45,6 +47,7 @@ const CityPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <header className="bg-gradient-hero border-b">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center text-white">
@@ -96,6 +99,7 @@ const CityPage = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

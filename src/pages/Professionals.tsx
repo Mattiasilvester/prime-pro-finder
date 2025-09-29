@@ -8,6 +8,8 @@ import { Pagination } from '@/components/Pagination';
 import { EmptyState } from '@/components/EmptyState';
 import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 import { Breadcrumb } from '@/components/Breadcrumb';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 const ITEMS_PER_PAGE = 12;
 
@@ -96,7 +98,8 @@ const Professionals = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      <Header />
+      {/* Hero */}
       <header className="bg-gradient-hero border-b">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center text-white">
@@ -175,6 +178,7 @@ const Professionals = () => {
           </main>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

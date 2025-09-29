@@ -6,6 +6,8 @@ import { Breadcrumb } from '@/components/Breadcrumb';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { ProfileTabs } from '@/components/ProfileTabs';
 import { ContactCTA } from '@/components/ContactCTA';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 const ProfessionalProfile = () => {
   const { category, city, slug } = useParams<{ 
@@ -27,6 +29,7 @@ const ProfessionalProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         <Breadcrumb 
           items={[
@@ -50,6 +53,7 @@ const ProfessionalProfile = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
