@@ -1,0 +1,103 @@
+import { useState, useMemo } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
+import { mockProfessionals } from '@/data/professionals';
+import { categoryLabels, ProfessionalCategory } from '@/types/professional';
+import { ProfessionalCard } from '@/components/ProfessionalCard';
+import { SearchBar } from '@/components/SearchBar';
+import { Breadcrumb } from '@/components/Breadcrumb';
+
+const CityPage = () => {
+  const { category, city } = useParams<{ category: string; city: string }>();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Validate category
+  if (!category || !categoryLabels[category as ProfessionalCategory]) {
+    return <Navigate to="/professionisti" replace />;
+  }
+
+  const categoryKey = category as ProfessionalCategory;
+  const categoryLabel = categoryLabels[categoryKey];
+  const cityName = city ? decodeURIComponent(city) : '';
+
+  const filteredProfessionals = useMemo(() => {
+    let filtered = mockProfessionals.filter(prof => 
+      prof.category === categoryKey && 
+      prof.city.toLowerCase() === cityName.toLowerCase()
+    );
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(prof => 
+        prof.name.toLowerCase().includes(query) ||
+        prof.bio.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort: Partners first, then by rating
+    filtered.sort((a, b) => {
+      if (a.isPartner && !b.isPartner) return -1;
+      if (!a.isPartner && b.isPartner) return 1;
+      return b.rating - a.rating;
+    });
+
+    return filtered;
+  }, [categoryKey, cityName, searchQuery]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="bg-gradient-hero border-b">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto text-center text-white">
+            <h1 className="text-4xl font-bold mb-4">
+              {categoryLabel} a {cityName}
+            </h1>
+            <p className="text-xl opacity-90 mb-8">
+              I migliori {categoryLabel.toLowerCase()} a {cityName} per il tuo benessere
+            </p>
+            <SearchBar 
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder={`Cerca ${categoryLabel.toLowerCase()} a ${cityName}...`}
+            />
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <Breadcrumb 
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Professionisti', href: '/professionisti' },
+            { label: categoryLabel, href: `/professionisti/${category}` },
+            { label: cityName, href: `/professionisti/${category}/${city}` }
+          ]}
+        />
+
+        <div className="mt-6">
+          <h2 className="text-2xl font-semibold mb-6">
+            {filteredProfessionals.length} {categoryLabel} a {cityName}
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredProfessionals.map((professional) => (
+              <ProfessionalCard 
+                key={professional.id} 
+                professional={professional} 
+              />
+            ))}
+          </div>
+
+          {filteredProfessionals.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">
+                Nessun {categoryLabel.toLowerCase()} trovato a {cityName}.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CityPage;
