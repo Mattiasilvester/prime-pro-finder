@@ -51,7 +51,6 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
               <SelectValue placeholder="Tutte le categorie" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tutte le categorie</SelectItem>
               {Object.entries(categoryLabels).map(([key, label]) => (
                 <SelectItem key={key} value={key}>
                   {label}
