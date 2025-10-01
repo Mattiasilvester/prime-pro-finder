@@ -15,12 +15,16 @@ export default function TestPage() {
         const { data, error: fetchError } = await supabase
           .from('professionals')
           .select('*')
-          .limit(5);
+          .limit(1);
 
         if (fetchError) {
           setError(fetchError.message);
         } else {
           setProfessionals(data || []);
+          // Log per vedere i campi disponibili
+          if (data && data.length > 0) {
+            console.log('Campi disponibili:', Object.keys(data[0]));
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Errore sconosciuto');
