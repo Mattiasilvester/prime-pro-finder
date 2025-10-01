@@ -16,26 +16,29 @@ Questo documento è la fonte di verità per il progetto. Segui ESATTAMENTE quest
 ```markdown
 # INIZIO SESSIONE LAVORO - PRIME-PRO-FINDER
 
-Leggi questi file nell'ordine:
-1. .cursorrules - regole e stato del progetto
-2. work.md - cronologia sessioni precedenti
-3. produzione.md - checklist per deploy
-4. NOTE.md - note importanti da ricordare
+1. Leggi questi file nell'ordine:
+   - PROMPT_MASTER.md - contesto completo del progetto
+   - .cursorrules - regole tecniche e componenti LOCKED
+   - work.md - cronologia sessioni precedenti
+   - produzione.md - checklist per deploy
+   - CHANGELOG.md - ultime modifiche versione
+   - NOTE.md - note importanti da ricordare
 
-Poi dimmi:
-- Qual è lo stato attuale del progetto?
-- Cosa è già funzionante?
-- Quali sono i problemi noti?
-- Cosa dobbiamo fare oggi prioritariamente?
+2. Analizza e rispondi:
+   - Qual è lo stato attuale del progetto?
+   - Cosa è già funzionante?
+   - Quali componenti sono LOCKED?
+   - Quali sono i problemi noti?
+   - Cosa dobbiamo fare oggi prioritariamente?
 
-Rispondi in italiano con un riepilogo chiaro.
+Rispondi in italiano con un riepilogo chiaro e strutturato.
 ```
 
-**Poi esegui:**
+**POI ESEGUI IN TERMINALE:**
 ```bash
 npm run work:start
 git pull origin main
-npm install (se necessario)
+npm install (se ci sono nuove dipendenze)
 npm run dev
 ```
 
@@ -43,51 +46,54 @@ npm run dev
 ```markdown
 # CHIUSURA SESSIONE LAVORO - PRIME-PRO-FINDER
 
-Analizza tutto il lavoro svolto oggi e:
+Analizza tutto il lavoro svolto oggi e genera:
 
-1. **ELENCA FILE MODIFICATI/CREATI**
-   Lista tutti i file toccati con: nuovo/modificato/eliminato
+1. **FILE MODIFICATI/CREATI**
+   Lista con stato: ✨nuovo | ✏️modificato | ❌eliminato
 
 2. **SISTEMI DA PROTEGGERE** 
-   Quali componenti sono ora stabili e non vanno più toccati?
+   Componenti ora stabili da aggiungere ai LOCKED
 
 3. **PATTERN/REGOLE EMERSE**
-   Quali convenzioni o best practice abbiamo scoperto?
+   Best practices e convenzioni scoperte
 
 4. **BUG RISOLTI**
-   Quali problemi abbiamo risolti e come?
+   Format: Problema → Causa → Soluzione
 
-5. **GENERA AGGIORNAMENTO per .cursorrules:**
+5. **AGGIORNAMENTO .cursorrules:**
+   ## 📅 SESSIONE [DATA] - [TITOLO]
+   
+   ### FILE MODIFICATI:
+   - [lista]
+   
+   ### NUOVI LOCKED:
+   - [componenti]
+   
+   ### REGOLE AGGIUNTE:
+   - [pattern]
+   
+   ### BUG FIXATI:
+   - [risolti]
+   
+   ### TODO NEXT:
+   - [prossimi task]
 
-## 📅 SESSIONE [DATA] - [TITOLO BREVE]
+6. **AGGIORNA work.md** - Cronologia dettagliata della sessione
 
-### FILE MODIFICATI:
-- [lista]
+7. **AGGIORNA produzione.md** - Checklist deploy se necessario
 
-### NUOVI LOCKED:
-- [componenti stabili]
+8. **AGGIORNA CHANGELOG.md** - Se ci sono nuove features/fix
 
-### REGOLE AGGIUNTE:
-- [pattern scoperti]
-
-### BUG FIXATI:
-- [problemi risolti]
-
-### TODO NEXT:
-- [prossimi task]
-
-6. **AGGIORNA work.md** con cronologia di oggi
-
-7. **AGGIORNA produzione.md** se necessario
+9. **AGGIORNA PROMPT_MASTER.md** - Sezione STATO ATTUALE
 
 Genera tutto in formato markdown pronto per copia-incolla.
 ```
 
-**Poi esegui:**
+**POI ESEGUI IN TERMINALE:**
 ```bash
 npm run work:end
-git add .
-git commit -m "feat: [descrizione modifiche]"
+git add -A
+git commit -m "feat: [descrizione lavoro di oggi]"
 git push origin main
 ```
 
@@ -397,14 +403,36 @@ fix/*       # Bug fixes
 
 ## 📅 CRONOLOGIA AGGIORNAMENTI
 
+### **EMOJI STATI FILE:**
+- ✨ = File nuovo creato
+- ✏️ = File modificato
+- ❌ = File eliminato
+
 ### **SESSIONE 01/10/2025 - UI/UX REFINEMENT & COME FUNZIONA PAGE**
-- ✅ Creata pagina "Come Funziona" completa
+
+**File Modificati:**
+- ✨ `HowItWorks.tsx` - Pagina "Come Funziona" completa
+- ✨ `PROMPT_MASTER.md` - Single source of truth
+- ✨ `README.md` - Documentazione professionale
+- ✨ `LICENSE` - MIT License
+- ✨ `.env.example` - Template configurazione
+- ✨ `CONTRIBUTING.md` - Guida contributi
+- ✨ `CHANGELOG.md` - Cronologia versioni
+- ✏️ `Header.tsx` - Navigation update e mobile menu redesign
+- ✏️ `FiltersPanel.tsx` - Rimossi filtri obsoleti
+- ✏️ `SearchBar.tsx` - Text visibility fix
+- ✏️ `slider.tsx` - Visual behavior ottimizzato
+- ✏️ `Professionals.tsx` - URL filter persistence
+- ✏️ `index.css` - Animation carousel
+
+**Highlights:**
 - ✅ Fix slider visual behavior
 - ✅ Implementato filter persistence con URL
 - ✅ Fix mobile menu slide direction
 - ✅ Risolti 10 bug critici UI
 - ✅ Aggiunto infinite carousel testimonial
 - ✅ Ottimizzato scroll-to-top su tutte le pagine
+- ✅ Documentazione completa setup
 
 ---
 
