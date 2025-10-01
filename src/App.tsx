@@ -9,6 +9,7 @@ import Professionals from "./pages/Professionals";
 import CategoryPage from "./pages/CategoryPage";
 import CityPage from "./pages/CityPage";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
+import TestPage from "./pages/TestPage";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/test" element={<TestPage />} />
           <Route path="/professionisti" element={<Professionals />} />
           <Route path="/professionisti/:category" element={<CategoryPage />} />
           <Route path="/professionisti/:category/:city" element={<CityPage />} />

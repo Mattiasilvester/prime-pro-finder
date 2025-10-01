@@ -1,0 +1,429 @@
+# 🎯 CURSOR RULES - PRIME PRO FINDER (VETRINA PROFESSIONISTI)
+**Versione: 1.0 - Data: 01/10/2025**
+
+## ⚠️ ISTRUZIONI CRITICHE
+Stai lavorando su Prime Pro Finder, vetrina pubblica per professionisti fitness integrata con Performance Prime.
+**LEGGI TUTTO PRIMA DI AGIRE. NON MODIFICARE NULLA SENZA VERIFICARE.**
+
+## 🚀 CONTESTO PROGETTO
+- Vetrina pubblica per professionisti fitness (PT, nutrizionisti, fisioterapisti, mental coach)
+- Marketplace integrato con Performance Prime (stesso database Supabase)
+- Due modalità: pubblica (senza auth) e app (con auth e booking)
+- SEO-first per acquisizione organica
+- Stack: Next.js 14, TypeScript, Supabase, Tailwind, shadcn/ui
+
+## 🔐 DATABASE SCHEMA (SUPABASE PP)
+professionals (id, slug, full_name, headline, bio, category, is_partner, photo_url, city, starting_price, rating_avg, rating_count, services[], available_online, active)
+
+## 🔒 SISTEMI LOCKED - NON TOCCARE
+1. Connessione Supabase base
+2. Routing structure
+3. Componenti Lovable importati
+4. Colori brand: nero #000000, gold #EEBA2B
+
+## 📊 STATO ATTUALE
+- Data: 01/10/2025
+- Database: Da connettere a PP
+- Auth: Da implementare
+- Professionisti: Mock data (da sostituire)
+
+## 🎯 TODO PRIORITARI
+1. Sostituire mock data con query Supabase
+2. Implementare auth flow
+3. Aggiungere loading states
+4. Implementare filtri funzionanti
+
+---
+
+## Overview del Progetto
+Vetrina pubblica per professionisti del fitness (personal trainer, nutrizionisti, fisioterapisti, mental coach) integrata con Performance Prime. Il progetto utilizza Next.js 14 con App Router e TypeScript strict mode.
+
+## Stack Tecnologico
+- **Framework**: Next.js 14 App Router
+- **Linguaggio**: TypeScript (strict mode)
+- **Database**: Supabase
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Validazione**: Zod
+- **Lingua**: Italiano
+
+## Struttura delle Routes
+
+### (public)/ - Vetrina Pubblica
+- Route accessibili senza autenticazione
+- Landing page, ricerca professionisti, profili pubblici
+- SEO ottimizzato per ogni pagina
+- Server Components di default
+
+### (app)/ - Area Utenti Loggati
+- Features extra per utenti autenticati
+- Sconto 10% visualizzato sui partner per abbonati PP
+- Preferiti, cronologia, prenotazioni
+
+### (auth)/ - Autenticazione
+- Login, signup, reset password
+- Redirect automatici post-autenticazione
+
+## Database Supabase
+
+### Tabella professionals
+- Campo `is_partner` (boolean): identifica i partner Performance Prime
+- Partner hanno card con styling premium (nero + bordo gold)
+- Abbonati PP hanno sconto 10% sui servizi dei partner
+
+### Client/Server Split
+- **Server-side**: `@/integrations/supabase/client` per Server Components e Route Handlers
+- **Client-side**: creare istanza client separata per Client Components con `createBrowserClient`
+- Mai usare il server client in Client Components
+- Mai esporre service_role_key nel client
+
+## Convenzioni TypeScript
+
+### Strict Mode
+```typescript
+// ✅ Corretto
+interface Professional {
+  id: string;
+  name: string;
+  is_partner: boolean;
+}
+
+const getProfessional = (id: string): Promise<Professional> => {}
+
+// ❌ Evitare
+const getData = (id: any): any => {}
+```
+
+### No Any
+- Usare `unknown` se il tipo è davvero sconosciuto
+- Definire interfacce esplicite per tutti i dati
+- Tipizzare sempre response API e query Supabase
+
+### Type Safety
+- Importare tipi da `@/integrations/supabase/types`
+- Creare tipi custom in `@/types/` quando necessario
+- Usare generics per componenti riutilizzabili
+
+## React & Next.js Best Practices
+
+### Server vs Client Components
+```typescript
+// ✅ Server Component (default)
+// app/(public)/professionals/page.tsx
+import { createClient } from '@/integrations/supabase/client'
+
+export default async function ProfessionalsPage() {
+  const supabase = createClient()
+  const { data } = await supabase.from('professionals').select()
+  return <div>{/* render */}</div>
+}
+
+// ✅ Client Component (solo quando necessario)
+// components/FilterPanel.tsx
+'use client'
+import { useState } from 'react'
+
+export function FilterPanel() {
+  const [filters, setFilters] = useState({})
+  return <div>{/* interactive UI */}</div>
+}
+```
+
+### Quando Usare Client Components
+- Event handlers (onClick, onChange, etc.)
+- Hooks React (useState, useEffect, useReducer)
+- Browser APIs (localStorage, geolocation)
+- Interattività e stato locale
+- Contesti React
+
+### Quando Usare Server Components
+- Fetch dati dal database
+- Operazioni server-side
+- Accesso diretto a risorse backend
+- SEO e metadata
+- Componenti statici
+
+## Styling & Design System
+
+### Brand Colors
+```typescript
+// tailwind.config.ts
+colors: {
+  brand: {
+    black: '#000000',
+    gold: '#EEBA2B',
+  }
+}
+```
+
+### Card Professionisti
+```typescript
+// Partner: sfondo nero, bordo gold
+className="bg-black border-2 border-[#EEBA2B]"
+
+// Non-partner: styling standard
+className="bg-white border border-gray-200"
+```
+
+### Tailwind CSS
+- Usare sempre Tailwind utilities
+- NO CSS Modules o styled-components
+- Seguire approccio mobile-first
+- Usare classi responsive: `sm:`, `md:`, `lg:`, `xl:`
+- Preferire composizione con `cn()` da `@/lib/utils`
+
+### shadcn/ui Components
+- Importare da `@/components/ui/`
+- Personalizzare con Tailwind classes
+- Mantenere accessibilità (aria-labels, keyboard navigation)
+
+## Form Validation
+
+### Zod Schema
+```typescript
+import { z } from 'zod'
+
+const professionalSearchSchema = z.object({
+  category: z.enum(['personal_trainer', 'nutritionist', 'physiotherapist', 'mental_coach']),
+  city: z.string().min(2, 'Inserisci una città valida'),
+  maxPrice: z.number().positive().optional(),
+})
+
+type SearchFilters = z.infer<typeof professionalSearchSchema>
+```
+
+### Form Handling
+- Validare input lato client e server
+- Mostrare errori user-friendly in italiano
+- Usare react-hook-form o form actions Next.js
+
+## Loading States & Error Handling
+
+### Suspense Boundaries
+```typescript
+import { Suspense } from 'react'
+import { ProfessionalSkeleton } from '@/components/LoadingSkeleton'
+
+export default function Page() {
+  return (
+    <Suspense fallback={<ProfessionalSkeleton />}>
+      <ProfessionalsList />
+    </Suspense>
+  )
+}
+```
+
+### Error Boundaries
+```typescript
+// app/(public)/error.tsx
+'use client'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <div>
+      <h2>Qualcosa è andato storto!</h2>
+      <button onClick={reset}>Riprova</button>
+    </div>
+  )
+}
+```
+
+### Loading States
+- Usare `loading.tsx` per route-level loading
+- Skeleton screens per miglior UX
+- Ottimistic updates dove appropriato
+
+## SEO & Metadata
+
+### Dynamic Metadata
+```typescript
+import type { Metadata } from 'next'
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: { id: string } 
+}): Promise<Metadata> {
+  const professional = await getProfessional(params.id)
+  
+  return {
+    title: `${professional.name} - Performance Prime`,
+    description: professional.bio,
+    openGraph: {
+      images: [professional.image_url],
+    },
+  }
+}
+```
+
+### SEO Best Practices
+- Metadata dinamici per ogni pagina
+- Alt text per tutte le immagini
+- Semantic HTML (header, main, nav, article)
+- Structured data (JSON-LD) per professionisti
+- Sitemap.xml e robots.txt
+
+## Responsive Design
+
+### Mobile-First Approach
+```typescript
+// ✅ Mobile first
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  {/* cards */}
+</div>
+
+// ❌ Desktop first
+<div className="grid grid-cols-3 md:grid-cols-1">
+```
+
+### Breakpoints
+- sm: 640px (mobile landscape)
+- md: 768px (tablet)
+- lg: 1024px (desktop)
+- xl: 1280px (large desktop)
+
+## Logica Business
+
+### Sconto Partner per Abbonati PP
+```typescript
+// Mostrare sconto solo se:
+// 1. Professional è partner (is_partner === true)
+// 2. User è abbonato Performance Prime
+
+const showDiscount = professional.is_partner && user?.subscription_active
+const discountedPrice = originalPrice * 0.9 // -10%
+```
+
+### Badge Partner
+```typescript
+{professional.is_partner && (
+  <Badge className="bg-[#EEBA2B] text-black">
+    Partner Performance Prime
+  </Badge>
+)}
+```
+
+## Performance Optimization
+
+### Image Optimization
+```typescript
+import Image from 'next/image'
+
+<Image
+  src={professional.image_url}
+  alt={professional.name}
+  width={400}
+  height={300}
+  className="object-cover"
+  priority={false} // true solo above-the-fold
+/>
+```
+
+### Data Fetching
+- Usare `cache: 'force-cache'` per dati statici
+- Revalidate con ISR quando appropriato
+- Parallel data fetching con Promise.all
+- Prefetch con `<Link>` automatico
+
+## Sicurezza
+
+### Supabase RLS
+- Row Level Security abilitato su tutte le tabelle
+- Policy pubbliche per lettura professionisti
+- Policy restrittive per scrittura/modifica
+
+### Environment Variables
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=... # Solo server-side
+```
+
+### Input Sanitization
+- Validare tutti gli input utente
+- Escape HTML user-generated content
+- Usare parameterized queries (Supabase lo fa automaticamente)
+
+## Testing Checklist
+
+Prima di considerare una feature completa:
+- [ ] TypeScript compila senza errori
+- [ ] No any types
+- [ ] Responsive su mobile/tablet/desktop
+- [ ] Loading states implementati
+- [ ] Error handling presente
+- [ ] Accessibilità verificata
+- [ ] SEO metadata presente
+- [ ] Form validation con Zod
+- [ ] Supabase client/server corretto
+- [ ] Testi in italiano
+- [ ] Brand colors applicati correttamente
+
+## Convenzioni di Naming
+
+### File & Folders
+- Componenti: PascalCase (ProfessionalCard.tsx)
+- Utils: kebab-case (format-date.ts)
+- Pages: PascalCase (ProfessionalProfile.tsx)
+- Route folders: kebab-case o (grouped)
+
+### Variabili & Funzioni
+- camelCase per variabili e funzioni
+- PascalCase per componenti e tipi
+- UPPER_CASE per costanti
+
+### Database
+- snake_case per colonne (is_partner, created_at)
+- camelCase in TypeScript dopo mapping
+
+## Messaging & Copy
+
+### Tono di Voce
+- Professionale ma accessibile
+- Italiano corretto e fluente
+- Call-to-action chiare
+
+### Esempi
+```typescript
+// ✅ Buono
+"Trova il professionista perfetto per i tuoi obiettivi"
+"Scopri i nostri partner certificati"
+"Prenota la tua prima consulenza"
+
+// ❌ Evitare
+"Clicca qui"
+"Vai"
+"Submit"
+```
+
+## Git & Versioning
+
+### Commit Messages
+- Italiano
+- Prefisso: feat/fix/refactor/docs
+- Descrittivi: "feat: aggiungi filtro per categoria"
+
+### Branch Strategy
+- main: production
+- develop: staging
+- feature/*: nuove feature
+- fix/*: bugfix
+
+## Note Finali
+
+Questo progetto deve essere production-ready. Ogni feature deve essere:
+- Performante
+- Accessibile
+- SEO-friendly
+- Type-safe
+- Mobile-responsive
+- Ben testata
+
+Quando in dubbio, preferire semplicità e robustezza rispetto a over-engineering.
+
