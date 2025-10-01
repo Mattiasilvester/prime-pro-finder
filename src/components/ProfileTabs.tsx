@@ -15,11 +15,11 @@ export const ProfileTabs = ({ professional }: ProfileTabsProps) => {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="info">Info</TabsTrigger>
-        <TabsTrigger value="services">Servizi</TabsTrigger>
-        <TabsTrigger value="reviews">Recensioni</TabsTrigger>
-        <TabsTrigger value="contact">Contatti</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-4 h-auto">
+        <TabsTrigger value="info" className="text-xs sm:text-sm px-2 py-2">Info</TabsTrigger>
+        <TabsTrigger value="services" className="text-xs sm:text-sm px-2 py-2">Servizi</TabsTrigger>
+        <TabsTrigger value="reviews" className="text-xs sm:text-sm px-2 py-2">Recensioni</TabsTrigger>
+        <TabsTrigger value="contact" className="text-xs sm:text-sm px-2 py-2">Contatti</TabsTrigger>
       </TabsList>
 
       <TabsContent value="info" className="space-y-6">
@@ -56,10 +56,10 @@ export const ProfileTabs = ({ professional }: ProfileTabsProps) => {
       <TabsContent value="services" className="space-y-4">
         {professional.services.map((service, index) => (
           <Card key={index}>
-            <CardContent className="pt-6">
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-semibold text-lg">{service.name}</h3>
-                <div className="text-right">
+            <CardContent className="pt-4 md:pt-6 px-4 md:px-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                <h3 className="font-semibold text-base md:text-lg">{service.name}</h3>
+                <div className="text-left sm:text-right">
                   <div className="font-bold text-primary text-lg">
                     €{service.price}
                   </div>
@@ -68,14 +68,14 @@ export const ProfileTabs = ({ professional }: ProfileTabsProps) => {
                   </div>
                 </div>
               </div>
-              <p className="text-muted-foreground mb-3">
+              <p className="text-sm text-muted-foreground mb-3">
                 {service.description}
               </p>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <Badge variant={service.online ? "default" : "secondary"}>
                   {service.online ? "Online" : "In presenza"}
                 </Badge>
-                <Button size="sm">
+                <Button size="sm" className="w-full sm:w-auto">
                   Prenota
                 </Button>
               </div>

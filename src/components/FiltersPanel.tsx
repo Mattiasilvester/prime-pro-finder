@@ -21,7 +21,7 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
       category: '',
       city: '',
       availableOnline: false,
-      priceRange: [30, 150],
+      priceRange: [30, 30],
       maxDistance: 50,
       minRating: 0,
       nearMe: false
@@ -73,18 +73,6 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
           />
         </div>
 
-        {/* Online Availability */}
-        <div className="flex items-center justify-between">
-          <Label className="flex items-center gap-2">
-            <Wifi className="w-4 h-4" />
-            Disponibile Online
-          </Label>
-          <Switch
-            checked={filters.availableOnline}
-            onCheckedChange={(checked) => onChange({ availableOnline: checked })}
-          />
-        </div>
-
         {/* Price Range */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2">
@@ -93,8 +81,8 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
           </Label>
           <div className="px-2">
             <Slider
-              value={filters.priceRange}
-              onValueChange={(value) => onChange({ priceRange: value as [number, number] })}
+              value={[filters.priceRange[1]]}
+              onValueChange={(value) => onChange({ priceRange: [30, value[0]] as [number, number] })}
               max={150}
               min={30}
               step={5}
@@ -102,7 +90,7 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
             />
           </div>
           <div className="flex justify-between text-sm text-muted-foreground">
-            <span>€{filters.priceRange[0]}</span>
+            <span>€30</span>
             <span>€{filters.priceRange[1]}</span>
           </div>
         </div>
@@ -122,27 +110,6 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
           </div>
           <div className="text-sm text-muted-foreground text-center">
             {filters.maxDistance} km
-          </div>
-        </div>
-
-        {/* Rating Filter */}
-        <div className="space-y-3">
-          <Label className="flex items-center gap-2">
-            <Star className="w-4 h-4" />
-            Valutazione Minima
-          </Label>
-          <div className="px-2">
-            <Slider
-              value={[filters.minRating]}
-              onValueChange={(value) => onChange({ minRating: value[0] })}
-              max={5}
-              min={0}
-              step={0.5}
-              className="w-full"
-            />
-          </div>
-          <div className="text-sm text-muted-foreground text-center">
-            {filters.minRating === 0 ? 'Tutte' : `${filters.minRating}+ stelle`}
           </div>
         </div>
 

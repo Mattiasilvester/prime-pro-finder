@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { mockProfessionals } from '@/data/professionals';
 import { categoryLabels, ProfessionalCategory } from '@/types/professional';
@@ -11,6 +11,10 @@ import { Footer } from '@/components/Footer';
 const CityPage = () => {
   const { category, city } = useParams<{ category: string; city: string }>();
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // Validate category
   if (!category || !categoryLabels[category as ProfessionalCategory]) {
@@ -49,7 +53,7 @@ const CityPage = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <header className="bg-gradient-hero border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <div className="max-w-4xl mx-auto text-center text-white">
             <h1 className="text-4xl font-bold mb-4">
               {categoryLabel} a {cityName}
@@ -66,7 +70,7 @@ const CityPage = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <Breadcrumb 
           items={[
             { label: 'Home', href: '/' },

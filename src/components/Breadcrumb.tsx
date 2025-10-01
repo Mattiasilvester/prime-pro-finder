@@ -1,5 +1,6 @@
-import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface BreadcrumbItem {
   label: string;
@@ -11,25 +12,21 @@ interface BreadcrumbProps {
 }
 
 export const Breadcrumb = ({ items }: BreadcrumbProps) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
-    <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-      {items.map((item, index) => (
-        <div key={item.href} className="flex items-center">
-          {index === items.length - 1 ? (
-            <span className="text-foreground font-medium">{item.label}</span>
-          ) : (
-            <>
-              <Link 
-                to={item.href} 
-                className="hover:text-primary transition-colors"
-              >
-                {item.label}
-              </Link>
-              <ChevronRight className="w-4 h-4 mx-2" />
-            </>
-          )}
-        </div>
-      ))}
-    </nav>
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={handleBack}
+      className="text-foreground hover:text-gold hover:bg-transparent transition-colors gap-2 px-0"
+    >
+      <ArrowLeft className="w-5 h-5" />
+      <span className="font-medium">Indietro</span>
+    </Button>
   );
 };

@@ -12,11 +12,11 @@ export const Header = () => {
   const navLinks = [
     { label: 'Professionisti', path: '/professionisti' },
     { label: 'Come Funziona', path: '/come-funziona' },
-    { label: 'Per i Professionisti', path: '/per-professionisti' },
+    { label: 'Diventa Partner', path: '/per-professionisti' },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+    <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -33,10 +33,12 @@ export const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path)
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
+                className={`text-sm transition-colors font-bold ${
+                  link.label === 'Diventa Partner'
+                    ? 'text-gold hover:text-gold/80'
+                    : isActive(link.path)
+                    ? 'text-black hover:text-black/80'
+                    : 'text-black hover:text-black/80'
                 }`}
               >
                 {link.label}
@@ -60,32 +62,65 @@ export const Header = () => {
             )}
           </button>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="md:hidden py-4 space-y-3 border-t">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`block py-2 text-sm font-medium transition-colors ${
-                  isActive(link.path)
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <Button variant="outline" size="sm" className="w-full" asChild>
-              <Link to="/accedi" onClick={() => setMobileMenuOpen(false)}>
-                Accedi
-              </Link>
-            </Button>
-          </nav>
-        )}
       </div>
+
+      {/* Mobile Navigation - Slide from right */}
+      <div
+        className={`fixed top-0 right-0 h-full w-64 bg-gradient-hero z-50 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        {/* Close button */}
+        <div className="flex justify-end p-4">
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu"
+          >
+            <X className="h-6 w-6 text-white" />
+          </button>
+        </div>
+
+        {/* Menu items */}
+        <nav className="px-4 py-6 space-y-4 flex-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`block py-3 text-base transition-colors ${
+                link.label === 'Diventa Partner'
+                  ? 'text-gold hover:text-gold/80 font-bold'
+                  : isActive(link.path)
+                  ? 'text-gold font-medium'
+                  : 'text-white hover:text-gold font-medium'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <Button variant="outline" size="sm" className="w-full mt-6 border-gold text-gold hover:bg-gold hover:text-black" asChild>
+            <Link to="/accedi" onClick={() => setMobileMenuOpen(false)}>
+              Accedi
+            </Link>
+          </Button>
+        </nav>
+
+        {/* Logo at bottom */}
+        <div className="p-6 flex justify-center items-center border-t border-white/10">
+          <div className="text-xl font-extrabold" style={{ fontFamily: 'Cinzel, serif' }}>
+            <span className="text-black">Performance</span>
+            <span className="text-gold"> Prime</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
     </header>
   );
 };

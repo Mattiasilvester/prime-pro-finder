@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { mockProfessionals } from '@/data/professionals';
 import { categoryLabels } from '@/types/professional';
@@ -20,6 +20,10 @@ const ProfessionalProfile = () => {
     return mockProfessionals.find(prof => prof.slug === slug);
   }, [slug]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
   if (!professional) {
     return <Navigate to="/professionisti" replace />;
   }
@@ -30,7 +34,7 @@ const ProfessionalProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-4 md:py-8">
         <Breadcrumb 
           items={[
             { label: 'Home', href: '/' },
@@ -41,9 +45,9 @@ const ProfessionalProfile = () => {
           ]}
         />
 
-        <div className="mt-6">
+        <div className="mt-4 md:mt-6">
           <ProfileHeader professional={professional} />
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="mt-4 md:mt-8 grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
             <div className="lg:col-span-2">
               <ProfileTabs professional={professional} />
             </div>

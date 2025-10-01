@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { mockProfessionals } from '@/data/professionals';
 import { SearchFilters, Professional } from '@/types/professional';
 import { ProfessionalCard } from '@/components/ProfessionalCard';
@@ -14,18 +15,58 @@ import { Footer } from '@/components/Footer';
 const ITEMS_PER_PAGE = 12;
 
 const Professionals = () => {
-  const [filters, setFilters] = useState<SearchFilters>({
-    query: '',
-    category: '',
-    city: '',
-    availableOnline: false,
-    priceRange: [30, 150],
-    maxDistance: 50,
-    minRating: 0,
-    nearMe: false
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Initialize filters from URL params
+  const [filters, setFilters] = useState<SearchFilters>(() => {
+    const query = searchParams.get('q') || '';
+    const category = searchParams.get('category') || '';
+    const city = searchParams.get('city') || '';
+    const availableOnline = searchParams.get('online') === 'true';
+    const priceMin = parseInt(searchParams.get('priceMin') || '30');
+    const priceMax = parseInt(searchParams.get('priceMax') || '30');
+    const maxDistance = parseInt(searchParams.get('distance') || '50');
+    const minRating = parseFloat(searchParams.get('rating') || '0');
+    const nearMe = searchParams.get('nearMe') === 'true';
+
+    return {
+      query,
+      category,
+      city,
+      availableOnline,
+      priceRange: [priceMin, priceMax] as [number, number],
+      maxDistance,
+      minRating,
+      nearMe
+    };
   });
-  const [currentPage, setCurrentPage] = useState(1);
+  
+  const [currentPage, setCurrentPage] = useState(() => {
+    return parseInt(searchParams.get('page') || '1');
+  });
   const [isLoading] = useState(false);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (filters.query) params.set('q', filters.query);
+    if (filters.category) params.set('category', filters.category);
+    if (filters.city) params.set('city', filters.city);
+    if (filters.availableOnline) params.set('online', 'true');
+    if (filters.priceRange[0] !== 30) params.set('priceMin', filters.priceRange[0].toString());
+    if (filters.priceRange[1] !== 30) params.set('priceMax', filters.priceRange[1].toString());
+    if (filters.maxDistance !== 50) params.set('distance', filters.maxDistance.toString());
+    if (filters.minRating > 0) params.set('rating', filters.minRating.toString());
+    if (filters.nearMe) params.set('nearMe', 'true');
+    if (currentPage > 1) params.set('page', currentPage.toString());
+    
+    setSearchParams(params, { replace: true });
+  }, [filters, currentPage, setSearchParams]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   const filteredProfessionals = useMemo(() => {
     let filtered = [...mockProfessionals];
@@ -101,7 +142,7 @@ const Professionals = () => {
       <Header />
       {/* Hero */}
       <header className="bg-gradient-hero border-b">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto py-8">
           <div className="max-w-4xl mx-auto text-center text-white">
             <h1 className="text-4xl font-bold mb-4">
               Trova il Tuo Professionista del Benessere
@@ -117,7 +158,7 @@ const Professionals = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto py-8">
         <Breadcrumb 
           items={[
             { label: 'Home', href: '/' },

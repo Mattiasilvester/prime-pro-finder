@@ -28,13 +28,14 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
   const profileUrl = `/professionisti/${category}/${encodeURIComponent(city)}/${slug}`;
 
   return (
-    <Card className={cn(
-      "group overflow-hidden transition-all duration-300 hover:shadow-hover animate-fade-in",
-      isPartner 
-        ? "bg-partner-bg border-partner-border shadow-partner" 
-        : "bg-card hover:scale-[1.02]"
-    )}>
-      <CardContent className="p-0">
+    <Link to={profileUrl} className="block">
+      <Card className={cn(
+        "group overflow-hidden transition-all duration-300 animate-fade-in cursor-pointer",
+        isPartner 
+          ? "bg-black border-2 border-[#EEBA2B] shadow-[0_8px_30px_rgba(238,186,43,0.3)] hover:shadow-[0_12px_40px_rgba(238,186,43,0.4)]" 
+          : "bg-white border-2 border-gray-200 shadow-md hover:scale-[1.02] hover:shadow-xl hover:border-gray-300"
+      )}>
+        <CardContent className="p-0">
         {/* Partner Badge */}
         {isPartner && (
           <div className="relative">
@@ -154,7 +155,6 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
             </div>
 
             <Button 
-              asChild
               variant={isPartner ? "secondary" : "default"}
               size="sm"
               className={cn(
@@ -164,13 +164,12 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
                   : "hover:scale-105"
               )}
             >
-              <Link to={profileUrl}>
-                Contatta
-              </Link>
+              Contatta
             </Button>
           </div>
         </div>
       </CardContent>
     </Card>
+    </Link>
   );
 };

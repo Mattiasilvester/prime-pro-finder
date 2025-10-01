@@ -8,46 +8,15 @@ import { Footer } from '@/components/Footer';
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { transformProfessional } from '@/types/supabase-professional';
+import { mockProfessionals } from '@/data/professionals';
 import type { Professional } from '@/types/professional';
-import { LoadingSkeleton } from '@/components/LoadingSkeleton';
 
 const IndexSupabase = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [professionals, setProfessionals] = useState<Professional[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const professionals = mockProfessionals;
 
   useEffect(() => {
-    async function fetchProfessionals() {
-      try {
-        setLoading(true);
-        
-        const { data, error: fetchError } = await supabase
-          .from('professionals')
-          .select('*')
-          .eq('active', true)
-          .order('is_partner', { ascending: false })
-          .order('rating_avg', { ascending: false });
-
-        if (fetchError) {
-          console.error('Errore fetch Supabase:', fetchError);
-          setError(fetchError.message);
-        } else {
-          // Trasforma i dati dal formato DB al formato app
-          const transformed = (data || []).map(transformProfessional);
-          setProfessionals(transformed);
-        }
-      } catch (err) {
-        console.error('Errore generico:', err);
-        setError(err instanceof Error ? err.message : 'Errore sconosciuto');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProfessionals();
+    window.scrollTo(0, 0);
   }, []);
 
   const handleSearch = () => {
@@ -65,6 +34,10 @@ const IndexSupabase = () => {
   const physiotherapists = professionals.filter(p => p.category === 'physiotherapist');
   const mentalCoaches = professionals.filter(p => p.category === 'mental_coach');
 
+  console.log('Partners:', partners);
+  console.log('Personal trainers:', personalTrainers);
+  console.log('Total professionals:', professionals.length);
+
   const categories = [
     { name: 'Personal Trainer', slug: 'personal_trainer' },
     { name: 'Nutrizionisti', slug: 'nutritionist' },
@@ -72,54 +45,15 @@ const IndexSupabase = () => {
     { name: 'Mental Coach', slug: 'mental_coach' },
   ];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold mb-4">Caricamento professionisti...</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <LoadingSkeleton key={i} />
-            ))}
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-2xl mx-auto">
-            <h2 className="text-2xl font-bold text-red-700 mb-4">
-              Errore nel caricamento
-            </h2>
-            <p className="text-red-600 mb-6">{error}</p>
-            <Button onClick={() => window.location.reload()}>
-              Riprova
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       {/* Hero Section */}
       <section className="bg-gradient-hero text-white py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in leading-tight md:leading-tight">
               I Migliori Professionisti del Fitness e Benessere
             </h1>
             <p className="text-xl md:text-2xl opacity-90 mb-8 animate-slide-up">
@@ -137,11 +71,13 @@ const IndexSupabase = () => {
 
             <Button 
               size="lg" 
-              className="bg-gold text-black hover:bg-gold/90 font-semibold px-8 py-3 text-lg mb-8 animate-scale-in"
+              className="bg-gold text-black hover:bg-gold/90 font-semibold text-lg mb-8 animate-scale-in"
               onClick={handleSearch}
             >
-              <Search className="w-5 h-5 mr-2" />
-              Cerca Professionisti
+              <span className="flex items-center gap-2 w-full justify-center">
+                <Search className="w-5 h-5" />
+                Cerca Professionisti
+              </span>
             </Button>
 
             {/* Category Pills */}
@@ -153,7 +89,7 @@ const IndexSupabase = () => {
                 >
                   <Badge 
                     variant="secondary"
-                    className="text-sm px-4 py-2 bg-white/10 hover:bg-white/20 border-white/20 text-white cursor-pointer transition-all"
+                    className="text-sm px-6 py-2.5 bg-white/10 hover:bg-white/20 border-white/20 text-white cursor-pointer transition-all w-[170px] text-center inline-flex items-center justify-center"
                   >
                     {cat.name}
                   </Badge>
@@ -167,7 +103,7 @@ const IndexSupabase = () => {
       {/* Stats Banner */}
       {professionals.length > 0 && (
         <section className="py-8 bg-muted/30">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto">
             <div className="flex flex-wrap justify-center gap-8 text-center">
               <div>
                 <div className="text-3xl font-bold text-primary">{professionals.length}</div>
@@ -245,23 +181,10 @@ const IndexSupabase = () => {
         />
       )}
 
-      {/* Empty State */}
-      {professionals.length === 0 && !loading && !error && (
-        <section className="py-16">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl font-bold mb-4">
-              Nessun professionista trovato
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              Il database è vuoto. Aggiungi alcuni professionisti per iniziare.
-            </p>
-          </div>
-        </section>
-      )}
 
       {/* Final CTA Section */}
       <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">
             Non hai trovato quello che cercavi?
           </h2>

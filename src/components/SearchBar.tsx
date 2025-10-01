@@ -22,7 +22,7 @@ export const SearchBar = ({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="pl-10 h-12 text-base bg-white border-2 border-white/20 focus:border-gold focus:ring-gold"
+        className="pl-10 h-12 text-base text-black bg-white border-2 border-white/20 focus:border-gold focus:ring-gold"
       />
     </div>
   );

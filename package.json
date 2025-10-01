@@ -9,8 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "work:start": "echo '🚀 Iniziando sessione...' && git status",
-    "work:end": "echo '🔒 Chiudendo sessione...' && git status"
+    "work:start": "echo '🚀 Iniziando sessione Prime Pro Finder...' && echo '📋 Git Status:' && git status && echo '\\n✅ Pronto! Avvia con: npm run dev'",
+    "work:end": "echo '🔒 Chiudendo sessione Prime Pro Finder...' && echo '📋 Git Status:' && git status && echo '\\n✅ Sessione terminata! Ricorda di committare le modifiche.'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

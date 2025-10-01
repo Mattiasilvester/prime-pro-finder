@@ -17,7 +17,7 @@ export const PromoBanner = () => {
             <Button size="lg" className="bg-gold text-black hover:bg-gold/90 font-semibold">
               Diventa Abbonato
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className="border-white text-black bg-white hover:bg-white/90">
               Scopri i Vantaggi
             </Button>
           </div>

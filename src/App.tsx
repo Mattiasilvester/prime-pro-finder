@@ -11,6 +11,7 @@ import CategoryPage from "./pages/CategoryPage";
 import CityPage from "./pages/CityPage";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
 import TestPage from "./pages/TestPage";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/" element={<IndexSupabase />} />
           <Route path="/mock" element={<Index />} />
           <Route path="/test" element={<TestPage />} />
+          <Route path="/come-funziona" element={<HowItWorks />} />
           <Route path="/professionisti" element={<Professionals />} />
           <Route path="/professionisti/:category" element={<CategoryPage />} />
           <Route path="/professionisti/:category/:city" element={<CityPage />} />

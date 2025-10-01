@@ -65,28 +65,33 @@ export function mapCategory(dbCategory: string): 'personal_trainer' | 'nutrition
 /**
  * Trasforma un record dal database nel formato Professional dell'app
  */
-export function transformProfessional(dbProf: Partial<ProfessionalRow>): any {
+export function transformProfessional(dbProf: any): any {
+  const slug = dbProf.slug || `${dbProf.first_name?.toLowerCase()}-${dbProf.last_name?.toLowerCase()}`.replace(/\s+/g, '-');
+  const fullName = dbProf.full_name || `${dbProf.first_name || ''} ${dbProf.last_name || ''}`.trim();
+  const city = dbProf.city || dbProf.vat_city || '';
+  const startingPrice = dbProf.starting_price || 50;
+  
   return {
     id: dbProf.id || '',
-    slug: (dbProf as any).slug || `${dbProf.first_name?.toLowerCase()}-${dbProf.last_name?.toLowerCase()}`,
-    name: (dbProf as any).full_name || `${dbProf.first_name} ${dbProf.last_name}`,
+    slug,
+    name: fullName,
     category: mapCategory(dbProf.category || 'pt'),
-    city: (dbProf as any).city || (dbProf as any).vat_city || '',
+    city,
     region: '', // Da calcolare o aggiungere al DB
-    bio: (dbProf as any).bio || '',
-    photo: (dbProf as any).photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbProf.id}`,
-    isPartner: (dbProf as any).is_partner || false,
-    rating: (dbProf as any).rating_avg || 0,
-    reviewCount: (dbProf as any).rating_count || 0,
-    startingPrice: (dbProf as any).starting_price || 50,
-    priceRange: `€${(dbProf as any).starting_price || 50}-${((dbProf as any).starting_price || 50) + 30}`,
-    availableOnline: (dbProf as any).available_online || false,
+    bio: dbProf.bio || dbProf.headline || `Professionista ${mapCategory(dbProf.category || 'pt')}`,
+    photo: dbProf.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbProf.id}`,
+    isPartner: dbProf.is_partner === true,
+    rating: dbProf.rating_avg || 0,
+    reviewCount: dbProf.rating_count || 0,
+    startingPrice,
+    priceRange: `€${startingPrice}-${startingPrice + 30}`,
+    availableOnline: dbProf.available_online === true,
     specializations: [], // Da aggiungere al DB o estrarre da services
-    services: (dbProf as any).services || [],
+    services: Array.isArray(dbProf.services) ? dbProf.services : [],
     contact: {
       email: dbProf.email || '',
       phone: dbProf.phone || '',
-      address: `${dbProf.vat_address || ''}, ${(dbProf as any).city || dbProf.vat_city || ''}`.trim(),
+      address: `${dbProf.vat_address || ''}, ${city}`.replace(/^,\s*/, '').trim() || city,
     },
     social: {},
     experience: '', // Da aggiungere al DB
