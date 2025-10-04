@@ -97,18 +97,21 @@ const HowItWorks = () => {
                 Ottieni il <span className="text-gold font-bold text-2xl">10% di sconto</span> su tutti i servizi dei Partner Ufficiali
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 md:gap-x-16 gap-y-4 md:gap-y-6 max-w-3xl mx-auto px-4">
                 {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-200 leading-6">{benefit}</span>
+                  <div key={index} className="flex items-center gap-3">
+                    <CheckCircle className="w-6 h-6 text-gold flex-shrink-0" />
+                    <span className="text-gray-200 leading-6 md:whitespace-nowrap">{benefit}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="text-center mt-10">
-                <Button size="lg" className="bg-gold text-black hover:bg-gold/90 font-semibold">
-                  Scopri di Più
+              <div className="flex flex-row justify-center items-center gap-3 sm:gap-4 mt-10">
+                <Button size="lg" className="bg-gold text-black hover:bg-gold/90 font-semibold text-sm sm:text-base px-4 sm:px-6">
+                  Abbonati
+                </Button>
+                <Button size="lg" className="bg-white text-black hover:bg-white/90 font-semibold text-sm sm:text-base px-4 sm:px-6">
+                  Provala Gratis
                 </Button>
               </div>
             </CardContent>

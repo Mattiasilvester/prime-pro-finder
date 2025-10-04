@@ -1,5 +1,5 @@
 # 🎯 PROMPT MASTER - PRIME PRO FINDER (VETRINA PROFESSIONISTI)
-**Versione: 2.0 - Data: 01/10/2025**
+**Versione: 3.0 - Data: 01/10/2025**
 **Progetto: Vetrina pubblica professionisti fitness integrata con Performance Prime**
 
 ---
@@ -316,21 +316,29 @@ const schema = z.object({
 - Mobile menu e navigation
 - Testimonial carousel infinito
 - UI/UX base rifinita
+- **Sistema autenticazione Supabase completo**
+- **Sistema preferiti funzionante**
+- **Upload foto profilo con crop**
+- **Scroll-to-top button**
+- **Database schema completo (portal_* tables)**
+- **Pagine Login/Registrazione/Profilo/Preferiti**
 
 ### **🚧 IN PROGRESS:**
-- Sostituzione completa mock data
-- Pagina dettaglio professionista
-- Sistema prenotazioni
+- Loading states completi
+- Error boundaries
 
 ### **📝 TODO PRIORITARI:**
-1. [ ] Completare migrazione da mock a Supabase
-2. [ ] Implementare auth flow (login/signup)
-3. [ ] Aggiungere loading states ovunque
-4. [ ] Creare pagina professionista/:slug
-5. [ ] Implementare form contatto
-6. [ ] Sistema preferiti utente
-7. [ ] SEO metadata dinamici
-8. [ ] Analytics (GA4 + Hotjar)
+1. [x] Completare migrazione da mock a Supabase
+2. [x] Implementare auth flow (login/signup)
+3. [x] Sistema preferiti utente
+4. [x] Upload foto profilo
+5. [ ] Aggiungere loading states ovunque
+6. [ ] Creare pagina professionista/:slug
+7. [ ] Implementare form contatto
+8. [ ] Sistema prenotazioni
+9. [ ] Sistema recensioni
+10. [ ] SEO metadata dinamici
+11. [ ] Analytics (GA4 + Hotjar)
 
 ### **🐛 BUG NOTI:**
 - Nessun bug critico al momento

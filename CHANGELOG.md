@@ -13,9 +13,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sistema prenotazioni professionisti
 - Pagina dettaglio professionista con slug
 - Form contatto professionista
-- Auth flow completo (login/signup/reset)
-- Dashboard utente con preferiti
 - Sistema recensioni
+- Loading states completi
+- Error boundaries
+
+---
+
+## [3.0.0] - 2025-10-01
+
+### ✨ Added
+- **Sistema Autenticazione Supabase Completo:**
+  - Pagina Login (`/accedi`) con validazione form
+  - Pagina Registrazione (`/registrati`) con alert per utenti app esistenti
+  - Pagina Profilo (`/profilo`) - Dashboard utente completa
+  - Pagina Preferiti (`/preferiti`) - Lista professionisti salvati
+  - ProtectedRoute component per protezione route
+  - Hook useAuth con integrazione Supabase completa
+
+- **Sistema Upload Foto Profilo:**
+  - PhotoUploader component con accesso camera/webcam
+  - PhotoCropper component con crop circolare (ReactCrop)
+  - Salvataggio base64 in user metadata
+  - CSS filters per brightness/contrast/saturate
+
+- **Sistema Preferiti Funzionante:**
+  - Heart button su tutte le ProfessionalCard
+  - Toggle add/remove con toast feedback
+  - Filtri per categoria con colori dinamici
+  - Empty states e loading states
+  - Navigazione "Esplora Professionisti"
+
+- **Scroll-to-Top Button:**
+  - Componente con design Performance Prime
+  - Appare dopo 300px scroll su tutte le pagine
+  - Escluso da pagine auth/onboarding
+  - MutationObserver per nascondere con mobile menu aperto
+  - Haptic feedback mobile + smooth scroll
+
+- **Database Schema Completo:**
+  - Tabelle `portal_*` isolate per evitare conflitti con app
+  - `vetrina_professionals` - Professionisti pubblici
+  - `portal_users` - Utenti registrati dal portale
+  - `portal_favorites` - Preferiti con foreign key corrette
+  - `portal_bookings`, `portal_reviews`, `portal_notifications` - Future features
+
+### 🔧 Changed
+- **Header Navigation:**
+  - Dinamico: "Accedi" → "Profilo" quando utente loggato
+  - "Profilo" button: gold background, black text
+  - Active page indicator: link attivo gold/bold
+
+- **Mobile Menu:**
+  - Aggiunto link "Home"
+  - "Performance" text cambiato da nero a bianco
+  - Active state: link attivo gold/bold, altri white
+
+- **ProfessionalCard:**
+  - Heart button non invasivo aggiunto
+  - Discount banner spostato sotto prezzo (non overlap)
+  - Toast feedback per operazioni preferiti
+
+- **Database Integration:**
+  - Sostituito mock data con query reali Supabase
+  - Schema corretto con `vetrina_professionals`
+  - RLS policies configurate su tutte le tabelle
+  - Auto-creazione profilo portal al primo login
+
+### 🐛 Fixed
+- **Scroll-to-top visibile con mobile menu** → MutationObserver pattern
+- **Login non funzionante** → RLS policies + auto-creazione profilo
+- **Foreign key violation preferiti** → `vetrina_professionals` + update FK
+- **Errori TypeScript error properties** → Cast `error as any`
+- **Foto profilo non persistente** → `avatar_url` mapping completo
+- **Layout modificato senza autorizzazione** → Regola "non modificare layout"
+
+### 🎨 Styling
+- **Filtri Colorati Dinamici** (solo pagina Preferiti):
+  - Personal Trainer: blu
+  - Nutrizionisti: verde
+  - Fisioterapisti: viola
+  - Mental Coach: arancione
+  - Stato selezionato: sempre oro
+
+- **Photo Profile:**
+  - CSS filters per brightness/contrast/saturate
+  - Border gold più sottile
+  - Hover effect con camera icon
+
+### 🗄️ Database
+- Setup completo tabelle `portal_*` isolate
+- RLS policies per sicurezza dati
+- Foreign key constraints corrette
+- Auto-trigger per creazione profilo utente
+
+### 📚 Documentation
+- Aggiornato `.cursorrules` con nuova sessione
+- Aggiornato `work.md` con cronologia completa
+- Aggiornato `produzione.md` con checklist aggiornata
+- Pattern e regole documentate
 
 ---
 

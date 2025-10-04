@@ -1,15 +1,23 @@
-import { Star, MapPin, Euro, Badge, Zap } from 'lucide-react';
+import { Star, MapPin, Euro, Badge, Zap, Heart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Professional, categoryLabels } from '@/types/professional';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { addToPortalFavorites, removeFromPortalFavorites, checkIsFavorite } from '@/lib/supabase-portal';
+import { toast } from 'sonner';
 
 interface ProfessionalCardProps {
   professional: Professional;
 }
 
 export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
+  const { user } = useAuth();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     slug,
     name,
@@ -26,6 +34,90 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
 
   const categoryLabel = categoryLabels[category];
   const profileUrl = `/professionisti/${category}/${encodeURIComponent(city)}/${slug}`;
+
+  // Check if professional is in favorites
+  useEffect(() => {
+    if (user?.id) {
+      checkFavoriteStatus();
+    }
+  }, [user?.id, professional.id]);
+
+  const checkFavoriteStatus = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await checkIsFavorite(user.id, professional.id);
+      if (!error && data) {
+        setIsFavorite(true);
+      }
+    } catch (error) {
+      console.error('Errore verifica preferito:', error);
+    }
+  };
+
+  const handleFavoriteToggle = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent Link navigation
+    e.stopPropagation();
+    
+    console.log('🔄 Toggle preferito:', {
+      userId: user?.id,
+      professionalId: professional.id,
+      isFavorite,
+      userAuthenticated: !!user
+    });
+    
+    if (!user?.id) {
+      toast.error('Devi essere loggato per salvare i preferiti');
+      return;
+    }
+
+    if (!professional.id) {
+      toast.error('ID professionista non valido');
+      console.error('❌ Professional ID missing:', professional);
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      if (isFavorite) {
+        // Remove from favorites
+        console.log('🗑️ Rimuovendo dai preferiti...');
+        const { error } = await removeFromPortalFavorites(user.id, professional.id);
+        if (error) {
+          console.error('❌ Errore rimozione preferito:', error);
+          toast.error(`Errore nel rimuovere dai preferiti: ${error.message}`);
+          return;
+        }
+        setIsFavorite(false);
+        toast.success('Rimosso dai preferiti');
+        console.log('✅ Rimosso dai preferiti con successo');
+      } else {
+        // Add to favorites
+        console.log('➕ Aggiungendo ai preferiti...');
+        const { data, error } = await addToPortalFavorites(user.id, professional.id);
+        if (error) {
+          console.error('❌ Errore aggiunta preferito:', error);
+          console.error('❌ Error details:', {
+            message: error.message,
+            code: (error as any).code,
+            details: (error as any).details,
+            hint: (error as any).hint
+          });
+          toast.error(`Errore nel salvare nei preferiti: ${error.message}`);
+          return;
+        }
+        setIsFavorite(true);
+        toast.success('Aggiunto ai preferiti');
+        console.log('✅ Aggiunto ai preferiti con successo:', data);
+      }
+    } catch (error) {
+      console.error('💥 Errore toggle preferito:', error);
+      toast.error('Errore durante l\'operazione');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Link to={profileUrl} className="block">
@@ -45,10 +137,25 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
                 Partner Ufficiale PP
               </div>
             </div>
+            {/* Heart Button */}
             <div className="absolute top-3 right-3 z-10">
-              <div className="bg-gold/20 text-gold px-2 py-1 rounded text-xs font-medium">
-                -10% Abbonati PP
-              </div>
+              <button
+                onClick={handleFavoriteToggle}
+                disabled={isLoading}
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110",
+                  isFavorite 
+                    ? "bg-red-500 text-white" 
+                    : "bg-white/80 text-gray-600 hover:bg-white hover:text-red-500"
+                )}
+              >
+                <Heart 
+                  className={cn(
+                    "w-4 h-4 transition-all duration-200",
+                    isFavorite ? "fill-current" : ""
+                  )}
+                />
+              </button>
             </div>
           </div>
         )}
@@ -69,6 +176,29 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
                 <Zap className="w-3 h-3" />
                 Online
               </div>
+            </div>
+          )}
+
+          {/* Heart Button for non-partners */}
+          {!isPartner && (
+            <div className="absolute top-3 right-3 z-10">
+              <button
+                onClick={handleFavoriteToggle}
+                disabled={isLoading}
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110",
+                  isFavorite 
+                    ? "bg-red-500 text-white" 
+                    : "bg-white/80 text-gray-600 hover:bg-white hover:text-red-500"
+                )}
+              >
+                <Heart 
+                  className={cn(
+                    "w-4 h-4 transition-all duration-200",
+                    isFavorite ? "fill-current" : ""
+                  )}
+                />
+              </button>
             </div>
           )}
         </div>
@@ -138,20 +268,30 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
 
           {/* Price & CTA */}
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-1">
-              <Euro className="w-4 h-4" />
-              <span className={cn(
-                "font-bold",
-                isPartner ? "text-gold" : "text-primary"
-              )}>
-                {startingPrice}
-              </span>
-              <span className={cn(
-                "text-sm",
-                isPartner ? "text-gray-300" : "text-muted-foreground"
-              )}>
-                /sessione
-              </span>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1">
+                <Euro className="w-4 h-4" />
+                <span className={cn(
+                  "font-bold",
+                  isPartner ? "text-gold" : "text-primary"
+                )}>
+                  {startingPrice}
+                </span>
+                <span className={cn(
+                  "text-sm",
+                  isPartner ? "text-gray-300" : "text-muted-foreground"
+                )}>
+                  /sessione
+                </span>
+              </div>
+              {/* Partner discount banner */}
+              {isPartner && (
+                <div className="mt-1">
+                  <div className="bg-gold/20 text-gold px-2 py-1 rounded text-xs font-medium inline-block">
+                    -10% Abbonati PP
+                  </div>
+                </div>
+              )}
             </div>
 
             <Button 

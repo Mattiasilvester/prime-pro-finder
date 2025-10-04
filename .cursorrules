@@ -20,18 +20,30 @@ professionals (id, slug, full_name, headline, bio, category, is_partner, photo_u
 2. Routing structure
 3. Componenti Lovable importati
 4. Colori brand: nero #000000, gold #EEBA2B
+5. ScrollTopButton.tsx (MutationObserver implementazione)
+6. ProtectedRoute.tsx (logica protezione route)
+7. PhotoUploader.tsx / PhotoCropper.tsx (sistema upload/crop)
+8. Sistema Supabase Auth (useAuth.ts + supabase-portal.ts)
+9. Sistema preferiti (heart button + logica business)
+10. Filtri colorati (getFilterButtonStyle pattern)
 
 ## 📊 STATO ATTUALE
 - Data: 01/10/2025
-- Database: Da connettere a PP
-- Auth: Da implementare
-- Professionisti: Mock data (da sostituire)
+- Database: ✅ Connesso a PP con tabelle portal_* isolate
+- Auth: ✅ Sistema Supabase completo (login/registrazione/profilo)
+- Professionisti: ✅ Dati reali da vetrina_professionals
+- Preferiti: ✅ Sistema funzionante con heart button
+- Photo Upload: ✅ Sistema completo con crop circolare
 
 ## 🎯 TODO PRIORITARI
-1. Sostituire mock data con query Supabase
-2. Implementare auth flow
-3. Aggiungere loading states
-4. Implementare filtri funzionanti
+1. ✅ Sistema autenticazione Supabase completo
+2. ✅ Sistema preferiti funzionante
+3. ✅ Upload foto profilo con crop
+4. ✅ Pagine login/registrazione/profilo/preferiti
+5. ✅ Database schema corretto (vetrina_professionals)
+6. [ ] Sistema prenotazioni
+7. [ ] Form contatto professionisti
+8. [ ] Sistema recensioni
 
 ---
 
@@ -427,3 +439,362 @@ Questo progetto deve essere production-ready. Ogni feature deve essere:
 
 Quando in dubbio, preferire semplicità e robustezza rispetto a over-engineering.
 
+# PROMPT CURSOR - SISTEMA DATABASE PERFORMANCE PRIME
+
+## ⚠️ IMPORTANTE: ARCHITETTURA DATABASE CONDIVISA
+
+**Performance Prime** usa UN SOLO progetto Supabase che gestisce:
+1. **App Mobile Performance Prime** (tabelle esistenti dell'app)
+2. **Prime Pro Finder** (portale web/vetrina pubblica)
+
+## 🛡️ STRATEGIA ANTI-CONFLITTO IMPLEMENTATA
+
+Per evitare QUALSIASI conflitto tra app e portale web, abbiamo implementato:
+
+### ISOLAMENTO COMPLETO CON PREFISSO `portal_`
+
+**TUTTE le tabelle del portale web usano prefisso `portal_`:**
+- ❌ NON usare: `profiles`, `bookings`, `reviews`, `favorites`
+- ✅ USARE: `portal_users`, `portal_bookings`, `portal_reviews`, `portal_favorites`
+
+## 📊 STRUTTURA DATABASE PORTAL
+
+```sql
+-- Tabelle ESCLUSIVE del portale web (Prime Pro Finder):
+portal_users              -- Utenti registrati dal portale
+portal_favorites          -- Professionisti salvati
+portal_bookings           -- Prenotazioni dal portale
+portal_reviews            -- Recensioni dal portale
+portal_notifications      -- Notifiche utenti portale
+portal_search_history     -- Analytics ricerche
+portal_contact_requests   -- Richieste di contatto
+
+-- Tabelle CONDIVISE (read-only dal portale):
+professionals            -- Lista professionisti (condivisa con app)
+auth.users              -- Sistema autenticazione Supabase
+```
+
+## 🔧 IMPLEMENTAZIONE FRONTEND
+
+### File: `/lib/supabase-portal.ts` (DA CREARE)
+
+```typescript
+// IMPORTANTE: Tutte le query devono usare tabelle portal_*
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
+// ✅ CORRETTO - Usa portal_users
+export async function getPortalUserProfile(userId: string) {
+  const { data, error } = await supabase
+    .from('portal_users')  // NON 'profiles'!
+    .select('*')
+    .eq('id', userId)
+    .single()
+  
+  return { data, error }
+}
+
+// ✅ CORRETTO - Usa portal_bookings
+export async function createPortalBooking(booking: any) {
+  const { data, error } = await supabase
+    .from('portal_bookings')  // NON 'bookings'!
+    .insert(booking)
+    .select()
+    .single()
+  
+  return { data, error }
+}
+
+// ✅ CORRETTO - Usa portal_reviews
+export async function getPortalReviews(professionalId: string) {
+  const { data, error } = await supabase
+    .from('portal_reviews')  // NON 'reviews'!
+    .select('*')
+    .eq('professional_id', professionalId)
+    .order('created_at', { ascending: false })
+  
+  return { data, error }
+}
+
+// ✅ CORRETTO - Usa portal_favorites
+export async function addToPortalFavorites(userId: string, professionalId: string) {
+  const { data, error } = await supabase
+    .from('portal_favorites')  // NON 'user_favorites'!
+    .insert({
+      user_id: userId,
+      professional_id: professionalId
+    })
+  
+  return { data, error }
+}
+```
+
+### REGISTRAZIONE UTENTI - IMPORTANTE!
+
+Quando un utente si registra dal PORTALE, deve essere marcato come utente portal:
+
+```typescript
+// ✅ CORRETTO - Registrazione dal portale
+export async function signUpPortalUser(email: string, password: string, fullName: string) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: fullName,
+        source: 'portal'  // CRITICO: Marca come utente portal!
+      }
+    }
+  })
+  
+  // Il trigger handle_new_portal_user() creerà automaticamente
+  // il record in portal_users grazie al flag source='portal'
+  
+  return { data, error }
+}
+
+// ❌ SBAGLIATO - Non differenzia la sorgente
+export async function signUpUser(email: string, password: string) {
+  // MANCA il flag source='portal'!
+}
+```
+
+## 🎯 REGOLE D'ORO PER EVITARE CONFLITTI
+
+### 1. NAMING CONVENTION RIGOROSA
+```typescript
+// ❌ MAI fare query dirette su tabelle app
+await supabase.from('profiles')...      // NO!
+await supabase.from('bookings')...      // NO!
+await supabase.from('reviews')...       // NO!
+
+// ✅ SEMPRE usare tabelle portal_*
+await supabase.from('portal_users')...      // SI!
+await supabase.from('portal_bookings')...   // SI!
+await supabase.from('portal_reviews')...    // SI!
+```
+
+### 2. SEPARAZIONE DEI COMPONENTI
+```typescript
+// Organizza i file in modo chiaro:
+/lib
+  /supabase-app.ts        // Query per l'app mobile
+  /supabase-portal.ts     // Query per il portale web (usa portal_*)
+  
+/hooks
+  /useAppAuth.ts          // Auth per app mobile
+  /usePortalAuth.ts       // Auth per portale web
+  
+/components
+  /app/                   // Componenti app mobile
+  /portal/                // Componenti portale web
+```
+
+### 3. TYPES SEPARATI
+```typescript
+// types/portal.ts
+export interface PortalUser {
+  id: string
+  full_name: string
+  email: string
+  has_pp_app: boolean  // Se hanno anche l'app
+  pp_subscription_status: 'free' | 'premium' | 'pro'
+  created_at: string
+}
+
+export interface PortalBooking {
+  id: string
+  user_id: string  // -> portal_users.id
+  professional_id: string  // -> professionals.id
+  booking_date: string
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed'
+  booking_source: 'portal' | 'app' | 'direct'
+}
+
+export interface PortalReview {
+  id: string
+  user_id: string  // -> portal_users.id
+  professional_id: string
+  rating: number
+  content: string
+  review_source: 'portal' | 'app'
+}
+```
+
+## 🔍 QUERY PATTERNS SICURI
+
+### Recupera professionisti (tabella condivisa - OK)
+```typescript
+// ✅ OK - professionals è condivisa
+const { data } = await supabase
+  .from('professionals')
+  .select('*')
+  .eq('city', 'Milano')
+```
+
+### Recupera dati utente portal
+```typescript
+// ✅ CORRETTO
+const { data } = await supabase
+  .from('portal_users')
+  .select(`
+    *,
+    portal_bookings (
+      *,
+      professional:professionals(*)
+    ),
+    portal_favorites (
+      professional:professionals(*)
+    )
+  `)
+  .eq('id', userId)
+```
+
+### Join tra tabelle portal e condivise
+```typescript
+// ✅ CORRETTO - Join portal_reviews con professionals
+const { data } = await supabase
+  .from('portal_reviews')
+  .select(`
+    *,
+    user:portal_users(full_name, avatar_url),
+    professional:professionals(name, category, city)
+  `)
+  .eq('professional_id', professionalId)
+```
+
+## ⚠️ ERRORI COMUNI DA EVITARE
+
+### ❌ ERRORE 1: Usare tabelle sbagliate
+```typescript
+// SBAGLIATO
+const profile = await supabase.from('profiles')...
+// GIUSTO
+const profile = await supabase.from('portal_users')...
+```
+
+### ❌ ERRORE 2: Non marcare la sorgente
+```typescript
+// SBAGLIATO - Registrazione senza source
+await supabase.auth.signUp({ email, password })
+
+// GIUSTO - Con source='portal'
+await supabase.auth.signUp({
+  email, 
+  password,
+  options: { data: { source: 'portal' } }
+})
+```
+
+### ❌ ERRORE 3: Mischiare dati app e portal
+```typescript
+// SBAGLIATO - Query miste
+const { data } = await supabase
+  .from('bookings')  // tabella app
+  .select('*, portal_users(*)')  // mix di app e portal
+
+// GIUSTO - Mantieni separazione
+const { data } = await supabase
+  .from('portal_bookings')  // tabella portal
+  .select('*, user:portal_users(*)')  // solo portal
+```
+
+## 📈 ANALYTICS E REPORTING
+
+Per dashboard e analytics, usa viste dedicate:
+
+```typescript
+// Analytics solo portal
+const { data } = await supabase
+  .from('portal_analytics')  // Vista aggregata
+  .select('*')
+  .single()
+
+// Metriche professionista (solo da portal)
+const { data } = await supabase
+  .rpc('get_portal_professional_stats', { prof_id: professionalId })
+```
+
+## 🚀 DEPLOYMENT CHECKLIST
+
+Prima di andare in produzione, verifica:
+
+- [ ] Tutte le query usano `portal_*` tables
+- [ ] Registrazione marca utenti con `source='portal'`
+- [ ] Nessuna query diretta a tabelle app (`profiles`, `bookings`, etc.)
+- [ ] Types TypeScript allineati con schema `portal_*`
+- [ ] RLS policies attive su tutte le tabelle `portal_*`
+- [ ] Backup del database prima di deploy
+- [ ] Test di integrazione app + portal funzionanti
+
+## 🔐 SICUREZZA
+
+```typescript
+// RLS è già configurato, ma verifica sempre:
+// - Gli utenti portal vedono solo i propri dati
+// - Le recensioni sono pubbliche ma modificabili solo dal proprietario
+// - I professionisti sono read-only dal portal
+```
+
+## 📞 SUPPORTO
+
+Per domande sull'architettura database:
+1. Controlla sempre il prefisso delle tabelle (`portal_*`)
+2. Verifica di non mischiare query app e portal
+3. Usa i types TypeScript corretti per portal
+
+---
+
+## 📅 SESSIONE 01/10/2025 - AUTENTICAZIONE E SISTEMA PREFERITI
+
+### FILE MODIFICATI:
+- ✨ ScrollTopButton.tsx (nuovo)
+- ✏️ App.tsx (route protette)
+- ✏️ Header.tsx (auth dinamico)
+- ✨ Login.tsx, Registrati.tsx, Profilo.tsx, Preferiti.tsx (nuovi)
+- ✨ ProtectedRoute.tsx (nuovo)
+- ✨ PhotoUploader.tsx, PhotoCropper.tsx (nuovi)
+- ✏️ ProfessionalCard.tsx (heart button)
+- ✏️ useAuth.ts (Supabase integration)
+- ✨ supabase-portal.ts (nuovo)
+- ✨ portal.ts types (nuovo)
+- ✏️ Supabase client + types
+
+### NUOVI LOCKED:
+- ScrollTopButton (MutationObserver pattern)
+- ProtectedRoute (logica protezione)
+- PhotoUploader/PhotoCropper (upload/crop system)
+- Sistema Supabase Auth completo
+- Sistema preferiti funzionante
+- Filtri colorati dinamic
+
+### REGOLE AGGIUNTE:
+- Pattern MutationObserver per UI state
+- Pattern Auth State Management (PortalUser → User)
+- Pattern Colori Filtri Dinamici
+- Pattern Database Isolation (portal_* tables)
+- Regola: "Non modificare layout senza autorizzazione"
+
+### BUG FIXATI:
+- Scroll-to-top visibile con mobile menu
+- Login non funzionante (RLS + auto-creazione profilo)
+- Foreign key violation preferiti (vetrina_professionals)
+- Errori TypeScript error properties
+- Foto profilo non persistente
+- Layout modificato senza autorizzazione
+
+### TODO NEXT:
+- Sistema prenotazioni
+- Form contatto professionisti
+- Sistema recensioni
+- Loading states completi
+- Error boundaries
+
+---
+
+**RICORDA**: Il sistema portal è COMPLETAMENTE ISOLATO dall'app. Non ci sono conflitti se rispetti il prefisso `portal_*` per tutte le operazioni del portale web!

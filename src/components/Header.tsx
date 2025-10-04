@@ -1,15 +1,30 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export const Header = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
+  // Nascondi ScrollTopButton quando il menu mobile è aperto
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('mobile-menu-open');
+    } else {
+      document.body.classList.remove('mobile-menu-open');
+    }
+    return () => {
+      document.body.classList.remove('mobile-menu-open');
+    };
+  }, [mobileMenuOpen]);
+
   const navLinks = [
+    { label: 'Home', path: '/' },
     { label: 'Professionisti', path: '/professionisti' },
     { label: 'Come Funziona', path: '/come-funziona' },
     { label: 'Diventa Partner', path: '/per-professionisti' },
@@ -33,7 +48,7 @@ export const Header = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm transition-colors font-bold ${
+                className={`text-sm transition-colors font-bold relative inline-block pb-1 ${
                   link.label === 'Diventa Partner'
                     ? 'text-gold hover:text-gold/80'
                     : isActive(link.path)
@@ -42,10 +57,26 @@ export const Header = () => {
                 }`}
               >
                 {link.label}
+                {isActive(link.path) && (
+                  <span 
+                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-[60%] ${
+                      link.label === 'Diventa Partner' 
+                        ? 'bg-black' 
+                        : 'bg-[#EEBA2B]'
+                    }`}
+                  />
+                )}
               </Link>
             ))}
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/accedi">Accedi</Link>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className={isAuthenticated ? "bg-gold text-black hover:bg-gold/90 border-gold" : ""}
+              asChild
+            >
+              <Link to={isAuthenticated ? '/profilo' : '/accedi'}>
+                {isAuthenticated ? 'Profilo' : 'Accedi'}
+              </Link>
             </Button>
           </nav>
 
@@ -66,7 +97,7 @@ export const Header = () => {
 
       {/* Mobile Navigation - Slide from right */}
       <div
-        className={`fixed top-0 right-0 h-full w-64 bg-gradient-hero z-50 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
+        className={`fixed top-0 right-0 h-full w-64 bg-gradient-hero z-[9999] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col ${
           mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -87,10 +118,8 @@ export const Header = () => {
               key={link.path}
               to={link.path}
               className={`block py-3 text-base transition-colors ${
-                link.label === 'Diventa Partner'
-                  ? 'text-gold hover:text-gold/80 font-bold'
-                  : isActive(link.path)
-                  ? 'text-gold font-medium'
+                isActive(link.path)
+                  ? 'text-gold font-bold'
                   : 'text-white hover:text-gold font-medium'
               }`}
               onClick={() => setMobileMenuOpen(false)}
@@ -98,9 +127,14 @@ export const Header = () => {
               {link.label}
             </Link>
           ))}
-          <Button variant="outline" size="sm" className="w-full mt-6 border-gold text-gold hover:bg-gold hover:text-black" asChild>
-            <Link to="/accedi" onClick={() => setMobileMenuOpen(false)}>
-              Accedi
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className={`w-full mt-6 ${isAuthenticated ? "bg-gold text-black hover:bg-gold/90 border-gold" : "border-gold text-gold hover:bg-gold hover:text-black"}`}
+            asChild
+          >
+            <Link to={isAuthenticated ? '/profilo' : '/accedi'} onClick={() => setMobileMenuOpen(false)}>
+              {isAuthenticated ? 'Profilo' : 'Accedi'}
             </Link>
           </Button>
         </nav>
@@ -108,7 +142,7 @@ export const Header = () => {
         {/* Logo at bottom */}
         <div className="p-6 flex justify-center items-center border-t border-white/10">
           <div className="text-xl font-extrabold" style={{ fontFamily: 'Cinzel, serif' }}>
-            <span className="text-black">Performance</span>
+            <span className="text-white">Performance</span>
             <span className="text-gold"> Prime</span>
           </div>
         </div>
@@ -117,7 +151,7 @@ export const Header = () => {
       {/* Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-[9998] md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}

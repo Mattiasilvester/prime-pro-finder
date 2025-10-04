@@ -20,7 +20,7 @@ const Professionals = () => {
   // Initialize filters from URL params
   const [filters, setFilters] = useState<SearchFilters>(() => {
     const query = searchParams.get('q') || '';
-    const category = searchParams.get('category') || '';
+    const category = (searchParams.get('category') || '') as '' | 'personal_trainer' | 'nutritionist' | 'physiotherapist' | 'mental_coach';
     const city = searchParams.get('city') || '';
     const availableOnline = searchParams.get('online') === 'true';
     const priceMin = parseInt(searchParams.get('priceMin') || '30');

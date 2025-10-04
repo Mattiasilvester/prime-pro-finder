@@ -3,7 +3,7 @@ import { Professional } from '@/types/professional';
 export const mockProfessionals: Professional[] = [
   // Partners (6)
   {
-    id: '1',
+    id: '550e8400-e29b-41d4-a716-446655440001',
     slug: 'marco-rossi-personal-trainer',
     name: 'Marco Rossi',
     category: 'personal_trainer',
@@ -37,7 +37,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['CONI', 'NASM-CPT', 'FIF']
   },
   {
-    id: '2',
+    id: '550e8400-e29b-41d4-a716-446655440002',
     slug: 'giulia-ferrari-nutrizionista',
     name: 'Giulia Ferrari',
     category: 'nutritionist',
@@ -70,7 +70,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Biologo Nutrizionista', 'ISSN', 'Sports Nutrition']
   },
   {
-    id: '3',
+    id: '550e8400-e29b-41d4-a716-446655440003',
     slug: 'alessandro-bianchi-fisioterapista',
     name: 'Alessandro Bianchi',
     category: 'physiotherapist',
@@ -102,7 +102,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Fisioterapista', 'OMT', 'Dry Needling']
   },
   {
-    id: '4',
+    id: '550e8400-e29b-41d4-a716-446655440004',
     slug: 'francesca-verde-mental-coach',
     name: 'Francesca Verde',
     category: 'mental_coach',
@@ -135,7 +135,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Psicologa', 'Mental Coach Certificata', 'PNL']
   },
   {
-    id: '5',
+    id: '550e8400-e29b-41d4-a716-446655440005',
     slug: 'roberto-gallo-personal-trainer',
     name: 'Roberto Gallo',
     category: 'personal_trainer',
@@ -168,7 +168,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['FIPCF', 'Powerlifting Coach', 'Ex Atleta Nazionale']
   },
   {
-    id: '6',
+    id: '550e8400-e29b-41d4-a716-446655440006',
     slug: 'martina-russo-nutrizionista',
     name: 'Martina Russo',
     category: 'nutritionist',
@@ -203,7 +203,7 @@ export const mockProfessionals: Professional[] = [
 
   // Regular Professionals (14)
   {
-    id: '7',
+    id: '550e8400-e29b-41d4-a716-446655440007',
     slug: 'luca-marini-personal-trainer',
     name: 'Luca Marini',
     category: 'personal_trainer',
@@ -234,7 +234,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Personal Trainer', 'HIIT Specialist']
   },
   {
-    id: '8',
+    id: '550e8400-e29b-41d4-a716-446655440008',
     slug: 'sofia-colombo-nutrizionista',
     name: 'Sofia Colombo',
     category: 'nutritionist',
@@ -266,7 +266,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Dietista', 'Nutrition Coach']
   },
   {
-    id: '9',
+    id: '550e8400-e29b-41d4-a716-446655440009',
     slug: 'davide-moretti-fisioterapista',
     name: 'Davide Moretti',
     category: 'physiotherapist',
@@ -297,7 +297,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Fisioterapista', 'Terapia Manuale']
   },
   {
-    id: '10',
+    id: '550e8400-e29b-41d4-a716-446655440010',
     slug: 'elena-ricci-mental-coach',
     name: 'Elena Ricci',
     category: 'mental_coach',
@@ -328,7 +328,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Life Coach', 'Mindfulness Teacher']
   },
   {
-    id: '11',
+    id: '550e8400-e29b-41d4-a716-446655440011',
     slug: 'antonio-serra-personal-trainer',
     name: 'Antonio Serra',
     category: 'personal_trainer',
@@ -360,7 +360,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['CrossFit L1', 'Outdoor Training']
   },
   {
-    id: '12',
+    id: '550e8400-e29b-41d4-a716-446655440012',
     slug: 'valentina-costa-nutrizionista',
     name: 'Valentina Costa',
     category: 'nutritionist',
@@ -391,7 +391,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Nutrizionista Clinica', 'Disturbi Alimentari']
   },
   {
-    id: '13',
+    id: '550e8400-e29b-41d4-a716-446655440013',
     slug: 'michele-bruno-fisioterapista',
     name: 'Michele Bruno',
     category: 'physiotherapist',
@@ -422,7 +422,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Fisioterapista', 'Osteopata D.O.']
   },
   {
-    id: '14',
+    id: '550e8400-e29b-41d4-a716-446655440014',
     slug: 'laura-fontana-mental-coach',
     name: 'Laura Fontana',
     category: 'mental_coach',
@@ -453,7 +453,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Life Coach', 'Counselor', 'NLP Practitioner']
   },
   {
-    id: '15',
+    id: '550e8400-e29b-41d4-a716-446655440015',
     slug: 'simone-neri-personal-trainer',
     name: 'Simone Neri',
     category: 'personal_trainer',
@@ -485,7 +485,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Calisthenics Coach', 'Functional Movement']
   },
   {
-    id: '16',
+    id: '550e8400-e29b-41d4-a716-446655440016',
     slug: 'chiara-galli-nutrizionista',
     name: 'Chiara Galli',
     category: 'nutritionist',
@@ -516,7 +516,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Dietista Pediatrica', 'Educazione Alimentare']
   },
   {
-    id: '17',
+    id: '550e8400-e29b-41d4-a716-446655440017',
     slug: 'federico-leone-fisioterapista',
     name: 'Federico Leone',
     category: 'physiotherapist',
@@ -547,7 +547,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Fisioterapista dello Sport', 'Massaggio Sportivo']
   },
   {
-    id: '18',
+    id: '550e8400-e29b-41d4-a716-446655440018',
     slug: 'anna-villa-personal-trainer',
     name: 'Anna Villa',
     category: 'personal_trainer',
@@ -580,7 +580,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Personal Trainer', 'Pre/Post Natal Fitness']
   },
   {
-    id: '19',
+    id: '550e8400-e29b-41d4-a716-446655440019',
     slug: 'giorgio-sanna-massaggiatore',
     name: 'Giorgio Sanna',
     category: 'other',
@@ -612,7 +612,7 @@ export const mockProfessionals: Professional[] = [
     certifications: ['Massaggiatore Terapeutico', 'Shiatsu', 'Tecniche Orientali']
   },
   {
-    id: '20',
+    id: '550e8400-e29b-41d4-a716-446655440020',
     slug: 'sara-de-santis-yoga-instructor',
     name: 'Sara De Santis',
     category: 'other',
