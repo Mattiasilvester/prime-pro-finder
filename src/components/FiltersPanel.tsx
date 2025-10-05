@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { SearchFilters, categoryLabels } from '@/types/professional';
+import { SearchFilters, categoryLabels, ProfessionalCategory } from '@/types/professional';
 
 interface FiltersPanelProps {
   filters: SearchFilters;
@@ -45,7 +45,7 @@ export const FiltersPanel = ({ filters, onChange, totalResults }: FiltersPanelPr
           <Label>Categoria</Label>
           <Select
             value={filters.category}
-            onValueChange={(value) => onChange({ category: value as any })}
+            onValueChange={(value) => onChange({ category: value as ProfessionalCategory })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Tutte le categorie" />

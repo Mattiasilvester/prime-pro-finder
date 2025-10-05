@@ -3,9 +3,10 @@ import { Header } from '@/components/Header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MapPin, Star, Clock, Euro } from 'lucide-react';
+import { Heart, MapPin, Star, Clock, Euro, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { getPortalFavorites } from '@/lib/supabase-portal';
+import { getPortalFavorites, removeFromPortalFavorites } from '@/lib/supabase-portal';
+import { toast } from 'sonner';
 import type { Professional } from '@/types/professional';
 import type { PortalFavoriteWithProfessional } from '@/types/portal';
 
@@ -15,11 +16,69 @@ const Preferiti = () => {
   const [professionals, setProfessionals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     loadFavorites();
   }, [user]);
+
+  // Listen for favorite changes from other components
+  useEffect(() => {
+    const handleFavoriteRemoved = (event: CustomEvent) => {
+      const { professionalId } = event.detail;
+      console.log('🗑️ Favorite removed event received:', professionalId);
+      
+      // Remove from local state immediately
+      setFavorites(prev => prev.filter(fav => fav.professional_id !== professionalId));
+      setProfessionals(prev => prev.filter(prof => prof.id !== professionalId));
+    };
+
+    const handleFavoriteAdded = (event: CustomEvent) => {
+      const { professional } = event.detail;
+      console.log('➕ Favorite added event received:', professional);
+      
+      // Add to local state immediately
+      const newFavorite = {
+        id: `temp-${Date.now()}`,
+        user_id: user?.id || '',
+        professional_id: professional.id,
+        created_at: new Date().toISOString(),
+        professional: professional
+      };
+      
+      setFavorites(prev => [...prev, newFavorite]);
+      setProfessionals(prev => [...prev, professional]);
+    };
+
+    // Add event listeners
+    window.addEventListener('favoriteRemoved', handleFavoriteRemoved as EventListener);
+    window.addEventListener('favoriteAdded', handleFavoriteAdded as EventListener);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('favoriteRemoved', handleFavoriteRemoved as EventListener);
+      window.removeEventListener('favoriteAdded', handleFavoriteAdded as EventListener);
+    };
+  }, [user?.id]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownOpen) {
+        const target = event.target as Element;
+        if (!target.closest('.dropdown-container')) {
+          setDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   const loadFavorites = async () => {
     if (!user?.id) return;
@@ -43,6 +102,37 @@ const Preferiti = () => {
       console.error('Errore caricamento preferiti:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRemoveFavorite = async (professionalId: string) => {
+    if (!user?.id) return;
+
+    setRemovingId(professionalId);
+
+    try {
+      const { error } = await removeFromPortalFavorites(user.id, professionalId);
+      if (error) {
+        console.error('❌ Errore rimozione preferito:', error);
+        toast.error(`Errore nel rimuovere dai preferiti: ${error.message}`);
+        return;
+      }
+
+      // Remove from local state immediately
+      setFavorites(prev => prev.filter(fav => fav.professional_id !== professionalId));
+      setProfessionals(prev => prev.filter(prof => prof.id !== professionalId));
+      
+      toast.success('Rimosso dai preferiti');
+      
+      // Emit custom event per aggiornare altre componenti
+      window.dispatchEvent(new CustomEvent('favoriteRemoved', {
+        detail: { professionalId }
+      }));
+    } catch (error) {
+      console.error('💥 Errore rimozione preferito:', error);
+      toast.error('Errore durante l\'operazione');
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -139,17 +229,52 @@ const Preferiti = () => {
         <div className="container mx-auto px-4">
           
           {/* Categories Filter */}
-          <div className="flex flex-wrap gap-2 mb-8 justify-center">
-            {categories.map((category) => (
+          <div className="mb-8">
+            {/* Desktop: Mostra tutti i filtri */}
+            <div className="hidden md:flex flex-wrap gap-2 justify-center">
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  className={getFilterButtonStyle(category.id, selectedCategory === category.id)}
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {getCategoryIcon(category.id)} {category.label} ({category.count})
+                </Button>
+              ))}
+            </div>
+
+            {/* Mobile: Dropdown menu */}
+            <div className="md:hidden relative dropdown-container">
               <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                className={getFilterButtonStyle(category.id, selectedCategory === category.id)}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className={`w-full justify-between ${getFilterButtonStyle(selectedCategory, true)}`}
+                variant="default"
               >
-                {getCategoryIcon(category.id)} {category.label} ({category.count})
+                <span>
+                  {getCategoryIcon(selectedCategory)} {categories.find(c => c.id === selectedCategory)?.label} ({categories.find(c => c.id === selectedCategory)?.count})
+                </span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
               </Button>
-            ))}
+
+              {/* Dropdown menu */}
+              {dropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setSelectedCategory(category.id);
+                        setDropdownOpen(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 ${getFilterButtonStyle(category.id, selectedCategory === category.id)}`}
+                    >
+                      {getCategoryIcon(category.id)} {category.label} ({category.count})
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Results */}
@@ -262,8 +387,16 @@ const Preferiti = () => {
                         <Button size="sm" variant="outline" className="border-gold text-gold hover:bg-gold hover:text-black">
                           Visualizza
                         </Button>
-                        <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white">
-                          <Heart className="w-4 h-4" />
+                        <Button 
+                          size="sm" 
+                          className="bg-red-500 hover:bg-red-600 text-white"
+                          onClick={() => handleRemoveFavorite(professional.id)}
+                          disabled={removingId === professional.id}
+                        >
+                          <Heart className="w-4 h-4 fill-current" />
+                          {removingId === professional.id && (
+                            <span className="ml-2 text-xs">...</span>
+                          )}
                         </Button>
                       </div>
                     </div>

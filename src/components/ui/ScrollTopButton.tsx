@@ -21,17 +21,11 @@ export function ScrollTopButton() {
     '/forgot-password',
     '/reset-password',
     '/verify-email',
-    '/complete-profile'
+    '/complete-profile',
+    '/profilo',
+    '/prenotazioni'
   ];
   
-  // Controlla se siamo in una pagina esclusa
-  const isExcludedPage = excludedPaths.some(path => 
-    location.pathname?.toLowerCase().includes(path)
-  );
-  
-  // Se siamo in una pagina esclusa, non renderizzare nulla
-  if (isExcludedPage) return null;
-
   // Controlla se il menu mobile è aperto
   useEffect(() => {
     const checkMobileMenu = () => {
@@ -74,6 +68,14 @@ export function ScrollTopButton() {
       behavior: 'smooth'
     });
   }, []);
+
+  // Controlla se siamo in una pagina esclusa
+  const isExcludedPage = excludedPaths.some(path => 
+    location.pathname?.toLowerCase().includes(path)
+  );
+  
+  // Se siamo in una pagina esclusa, non renderizzare nulla
+  if (isExcludedPage) return null;
 
   // Nascondi se non è visibile o se il menu mobile è aperto
   if (!isVisible || mobileMenuOpen) return null;

@@ -51,7 +51,7 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
         setIsFavorite(true);
       }
     } catch (error) {
-      console.error('Errore verifica preferito:', error);
+      // Silent error
     }
   };
 
@@ -59,12 +59,6 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
     e.preventDefault(); // Prevent Link navigation
     e.stopPropagation();
     
-    console.log('🔄 Toggle preferito:', {
-      userId: user?.id,
-      professionalId: professional.id,
-      isFavorite,
-      userAuthenticated: !!user
-    });
     
     if (!user?.id) {
       toast.error('Devi essere loggato per salvare i preferiti');
@@ -73,7 +67,6 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
 
     if (!professional.id) {
       toast.error('ID professionista non valido');
-      console.error('❌ Professional ID missing:', professional);
       return;
     }
 
@@ -82,37 +75,34 @@ export const ProfessionalCard = ({ professional }: ProfessionalCardProps) => {
     try {
       if (isFavorite) {
         // Remove from favorites
-        console.log('🗑️ Rimuovendo dai preferiti...');
         const { error } = await removeFromPortalFavorites(user.id, professional.id);
         if (error) {
-          console.error('❌ Errore rimozione preferito:', error);
           toast.error(`Errore nel rimuovere dai preferiti: ${error.message}`);
           return;
         }
         setIsFavorite(false);
         toast.success('Rimosso dai preferiti');
-        console.log('✅ Rimosso dai preferiti con successo');
+        
+        // Emit custom event per aggiornare pagina Preferiti
+        window.dispatchEvent(new CustomEvent('favoriteRemoved', {
+          detail: { professionalId: professional.id }
+        }));
       } else {
         // Add to favorites
-        console.log('➕ Aggiungendo ai preferiti...');
         const { data, error } = await addToPortalFavorites(user.id, professional.id);
         if (error) {
-          console.error('❌ Errore aggiunta preferito:', error);
-          console.error('❌ Error details:', {
-            message: error.message,
-            code: (error as any).code,
-            details: (error as any).details,
-            hint: (error as any).hint
-          });
           toast.error(`Errore nel salvare nei preferiti: ${error.message}`);
           return;
         }
         setIsFavorite(true);
         toast.success('Aggiunto ai preferiti');
-        console.log('✅ Aggiunto ai preferiti con successo:', data);
+        
+        // Emit custom event per aggiornare pagina Preferiti
+        window.dispatchEvent(new CustomEvent('favoriteAdded', {
+          detail: { professional: professional }
+        }));
       }
     } catch (error) {
-      console.error('💥 Errore toggle preferito:', error);
       toast.error('Errore durante l\'operazione');
     } finally {
       setIsLoading(false);

@@ -58,10 +58,11 @@ export const useAuth = () => {
           isSubscribed: authUser.user_metadata?.pp_subscription_status !== 'free' || false,
           avatar_url: authUser.user_metadata?.avatar_url || undefined,
         };
+        
+        
         setUser(finalUser);
         setIsLoading(false); // ✅ Loading false SUBITO - UNA SOLA QUERY
       } catch (error) {
-        console.error('Errore check auth:', error);
         setUser(null);
         setIsLoading(false);
       }
@@ -87,7 +88,6 @@ export const useAuth = () => {
           setUser(null);
         } else if (event === 'TOKEN_REFRESHED') {
           // Token aggiornato - nessuna azione necessaria con auth-only
-          console.log('Token refreshed');
         }
       }
     );
@@ -106,32 +106,23 @@ export const useAuth = () => {
     success: boolean; 
     error?: string 
   }> => {
-    console.log('[useAuth.login] START with email:', email);
-    
     try {
-      console.log('[useAuth.login] Setting isLoading TRUE');
       setIsLoading(true);
 
       // 1. Autentica con Supabase
-      console.log('[useAuth.login] Calling signInPortalUser...');
       const { data: authData, error: authError } = await signInPortalUser(
         email,
         password
       );
-      console.log('[useAuth.login] signInPortalUser returned:', { authData, authError });
 
       if (authError || !authData.user) {
-        console.log('[useAuth.login] Auth FAILED:', authError?.message);
         return { 
           success: false, 
           error: authError?.message || 'Credenziali non valide' 
         };
       }
 
-      console.log('[useAuth.login] Auth SUCCESS, user id:', authData.user.id);
-
       // 2. Usa SOLO dati da auth.users (nessuna query aggiuntiva)
-      console.log('[useAuth.login] Using auth user data directly...');
       const userData = {
         id: authData.user.id,
         name: authData.user.user_metadata?.full_name || authData.user.email?.split('@')[0] || 'Utente',
@@ -141,19 +132,15 @@ export const useAuth = () => {
       };
       
       // 3. Setta user immediatamente
-      console.log('[useAuth.login] Setting user state...');
       setUser(userData);
-      console.log('[useAuth.login] User set successfully');
 
       return { success: true };
     } catch (error) {
-      console.error('[useAuth.login] EXCEPTION:', error);
       return { 
         success: false, 
         error: 'Errore durante il login. Riprova.' 
       };
     } finally {
-      console.log('[useAuth.login] Setting isLoading FALSE');
       setIsLoading(false);
     }
   };
@@ -171,7 +158,7 @@ export const useAuth = () => {
       // Pulisci state (onAuthStateChange lo farà anche)
       setUser(null);
     } catch (error) {
-      console.error('Errore logout:', error);
+      // Logout error - silent fail
     } finally {
       setIsLoading(false);
     }

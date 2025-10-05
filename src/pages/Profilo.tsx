@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Settings, Heart, Calendar, LogOut, Save, X, Camera } from 'lucide-react';
+import { User, Settings, Heart, Calendar as CalendarIcon, LogOut, Save, X, Camera } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { updatePortalUserProfile } from '@/lib/supabase-portal';
+import { updatePortalUserProfile, getPortalFavorites } from '@/lib/supabase-portal';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PhotoUploader } from '@/components/PhotoUploader';
@@ -27,9 +27,32 @@ const Profilo = () => {
   const [showPhotoUploader, setShowPhotoUploader] = useState(false);
   const [showPhotoCropper, setShowPhotoCropper] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string>('');
+  const [favoritesCount, setFavoritesCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    loadFavoritesCount();
+  }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+      loadFavoritesCount();
+    }
+  }, [user?.id]);
+
+  // Listen for favorite changes from other components
+  useEffect(() => {
+    const handleFavoriteChanged = () => {
+      loadFavoritesCount();
+    };
+
+    window.addEventListener('favoriteAdded', handleFavoriteChanged);
+    window.addEventListener('favoriteRemoved', handleFavoriteChanged);
+
+    return () => {
+      window.removeEventListener('favoriteAdded', handleFavoriteChanged);
+      window.removeEventListener('favoriteRemoved', handleFavoriteChanged);
+    };
   }, []);
 
   // Aggiorna i dati locali quando user cambia
@@ -46,6 +69,24 @@ const Profilo = () => {
     isSubscribed: true
   };
   const memberSince = 'Gennaio 2025';
+
+  const loadFavoritesCount = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await getPortalFavorites(user.id);
+      if (error) {
+        console.error('Errore caricamento preferiti:', error);
+        return;
+      }
+      
+      if (data) {
+        setFavoritesCount(data.length);
+      }
+    } catch (error) {
+      console.error('Errore caricamento preferiti:', error);
+    }
+  };
 
   const handleEditStart = () => {
     setEditData({
@@ -360,7 +401,7 @@ const Profilo = () => {
                   <h2 className="text-xl font-bold">Preferiti</h2>
                 </div>
                 <p className="text-muted-foreground mb-4">
-                  Hai salvato 3 professionisti nei preferiti
+                  Hai salvato {favoritesCount} professionist{favoritesCount === 1 ? 'a' : 'i'} nei preferiti
                 </p>
                 <Button 
                   variant="outline" 
@@ -377,13 +418,18 @@ const Profilo = () => {
             <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Calendar className="w-6 h-6 text-gold" />
+                  <CalendarIcon className="w-6 h-6 text-gold" />
                   <h2 className="text-xl font-bold">Prenotazioni</h2>
                 </div>
                 <p className="text-muted-foreground mb-4">
                   Gestisci le tue sessioni e appuntamenti
                 </p>
-                <Button variant="outline" className="w-full" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => navigate('/prenotazioni')}
+                >
                   Vedi Prenotazioni
                 </Button>
               </CardContent>
@@ -418,6 +464,7 @@ const Profilo = () => {
         imageUrl={selectedImageUrl}
         onCrop={handlePhotoCrop}
       />
+
     </div>
   );
 };

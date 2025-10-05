@@ -1,13 +1,33 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowLeft } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 export const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+
+  // Determina se mostrare la freccia indietro (solo su mobile e non nella homepage)
+  const [showBackArrow, setShowBackArrow] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setShowBackArrow(location.pathname !== '/' && window.innerWidth < 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, [location.pathname]);
+
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -33,9 +53,21 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full bg-background border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center justify-between relative">
+          {/* Mobile Back Arrow */}
+          {showBackArrow && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackClick}
+              className="md:hidden p-2 bg-gold hover:bg-gold/90 text-black hover:text-black z-10"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className={`flex items-center space-x-2 ${showBackArrow ? 'absolute left-1/2 transform -translate-x-1/2' : ''}`}>
             <div className="font-bold text-xl">
               <span className="text-foreground">Performance</span>
               <span className="text-gold"> Prime</span>
@@ -81,17 +113,21 @@ export const Header = () => {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
+          <div className="md:hidden flex items-center space-x-2 z-10">
+            {showBackArrow && (
+              <div className="w-9 h-9"></div> // Spacer per bilanciare layout
             )}
-          </button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 

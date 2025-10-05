@@ -3,55 +3,17 @@
  * Questi types estendono quelli generati automaticamente da Supabase
  */
 
-import { Tables } from '@/integrations/supabase/types';
+import { Database } from '@/integrations/supabase/types';
+import type { Professional, ProfessionalCategory } from './professional';
 
 // Type base dal database
-export type ProfessionalRow = Tables<'professionals'>;
-
-// Type esteso per l'applicazione (con campi calcolati/trasformati)
-export interface ProfessionalExtended {
-  // Campi base database
-  id: string;
-  slug: string;
-  full_name: string;
-  headline: string | null;
-  bio: string | null;
-  category: 'pt' | 'nutrizionista' | 'fisioterapista' | 'mental_coach' | 'osteopata';
-  is_partner: boolean;
-  photo_url: string | null;
-  city: string;
-  starting_price: number | null;
-  rating_avg: number | null;
-  rating_count: number | null;
-  services: ServiceDB[] | null;
-  available_online: boolean;
-  active: boolean;
-  
-  // Campi esistenti dal vecchio schema
-  email: string;
-  phone: string;
-  first_name: string;
-  last_name: string;
-  company_name: string;
-  
-  // Metadata
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ServiceDB {
-  name: string;
-  description: string;
-  price: number;
-  duration: string;
-  online: boolean;
-}
+export type ProfessionalRow = Database['public']['Tables']['professionals']['Row'];
 
 /**
  * Mappa il category enum del database al formato frontend
  */
-export function mapCategory(dbCategory: string): 'personal_trainer' | 'nutritionist' | 'physiotherapist' | 'mental_coach' | 'other' {
-  const mapping: Record<string, 'personal_trainer' | 'nutritionist' | 'physiotherapist' | 'mental_coach' | 'other'> = {
+export function mapCategory(dbCategory: string): ProfessionalCategory {
+  const mapping: Record<string, ProfessionalCategory> = {
     'pt': 'personal_trainer',
     'nutrizionista': 'nutritionist',
     'fisioterapista': 'physiotherapist',
@@ -65,20 +27,20 @@ export function mapCategory(dbCategory: string): 'personal_trainer' | 'nutrition
 /**
  * Trasforma un record dal database nel formato Professional dell'app
  */
-export function transformProfessional(dbProf: any): any {
-  const slug = dbProf.slug || `${dbProf.first_name?.toLowerCase()}-${dbProf.last_name?.toLowerCase()}`.replace(/\s+/g, '-');
-  const fullName = dbProf.full_name || `${dbProf.first_name || ''} ${dbProf.last_name || ''}`.trim();
-  const city = dbProf.city || dbProf.vat_city || '';
+export function transformProfessional(dbProf: ProfessionalRow): Professional {
+  const slug = dbProf.slug || `${dbProf.full_name?.toLowerCase()}`.replace(/\s+/g, '-');
+  const fullName = dbProf.full_name || 'Professionista';
+  const city = dbProf.city || '';
   const startingPrice = dbProf.starting_price || 50;
   
   return {
-    id: dbProf.id || '',
+    id: dbProf.id,
     slug,
     name: fullName,
-    category: mapCategory(dbProf.category || 'pt'),
+    category: mapCategory(dbProf.category),
     city,
     region: '', // Da calcolare o aggiungere al DB
-    bio: dbProf.bio || dbProf.headline || `Professionista ${mapCategory(dbProf.category || 'pt')}`,
+    bio: dbProf.bio || dbProf.headline || `Professionista ${mapCategory(dbProf.category)}`,
     photo: dbProf.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${dbProf.id}`,
     isPartner: dbProf.is_partner === true,
     rating: dbProf.rating_avg || 0,
@@ -87,11 +49,17 @@ export function transformProfessional(dbProf: any): any {
     priceRange: `€${startingPrice}-${startingPrice + 30}`,
     availableOnline: dbProf.available_online === true,
     specializations: [], // Da aggiungere al DB o estrarre da services
-    services: Array.isArray(dbProf.services) ? dbProf.services : [],
+    services: Array.isArray(dbProf.services) ? dbProf.services.map(s => ({
+      name: s.name || '',
+      description: s.description || '',
+      price: s.price || 0,
+      duration: s.duration || '',
+      online: s.online || false
+    })) : [],
     contact: {
-      email: dbProf.email || '',
-      phone: dbProf.phone || '',
-      address: `${dbProf.vat_address || ''}, ${city}`.replace(/^,\s*/, '').trim() || city,
+      email: dbProf.full_name.includes('@') ? dbProf.full_name : '',
+      phone: '',
+      address: city,
     },
     social: {},
     experience: '', // Da aggiungere al DB

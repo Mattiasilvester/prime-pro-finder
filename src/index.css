@@ -2,6 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Calendar specific styles - optimized specificity */
+  .rdp-day_selected {
+    background-color: black;
+    color: white;
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  .rdp-day[aria-selected="true"] {
+    background-color: black;
+    color: white;
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  button[aria-selected="true"] {
+    background-color: black;
+    color: white;
+    border: none;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  /* Today styling - highest specificity */
+  .rdp .custom-today {
+    background-color: hsl(48 82% 55%);
+    color: black;
+  }
+  
+  .rdp .custom-today:hover,
+  .rdp .custom-today:focus,
+  .rdp .custom-today:active,
+  .rdp .custom-today[aria-selected="true"] {
+    background-color: hsl(48 82% 55%);
+    color: black;
+  }
+  
+  button.custom-today,
+  button.custom-today:hover,
+  button.custom-today:focus,
+  button.custom-today:active,
+  button.custom-today[aria-selected="true"] {
+    background-color: hsl(48 82% 55%);
+    color: black;
+  }
+  
+  /* Calendar container */
+  .rdp {
+    background-color: transparent;
+  }
+  
+  .rdp-day {
+    background-color: transparent;
+  }
+  
+  .rdp-day:hover {
+    background-color: transparent;
+  }
+  
+  [role="gridcell"] {
+    background-color: transparent;
+  }
+}
+
 /* Performance Prime Design System - Premium Black & Gold Theme
 All colors MUST be HSL.
 */
@@ -38,7 +105,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 90%;
     --input: 0 0% 100%;
-    --ring: 48 82% 55%;
+    --ring: 0 0% 0%;
 
     /* Custom Design Tokens */
     --partner-bg: 0 0% 0%;

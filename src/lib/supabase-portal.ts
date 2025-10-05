@@ -8,6 +8,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
 import type {
   PortalUser,
   CreatePortalUser,
@@ -87,33 +88,25 @@ export async function signUpPortalUser(
 export async function signInPortalUser(
   email: string,
   password: string
-): Promise<SupabaseResponse<{ user: any; session: any }>> {
-  console.log('[signInPortalUser] START with email:', email);
+): Promise<SupabaseResponse<{ user: User; session: Session }>> {
   
   try {
     // 1. Autentica con Supabase
-    console.log('[signInPortalUser] Calling supabase.auth.signInWithPassword...');
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    console.log('[signInPortalUser] Auth response:', { hasData: !!data, error: error?.message });
 
     if (error) {
-      console.log('[signInPortalUser] Auth ERROR:', error);
       return { data: null, error };
     }
 
     if (!data.user) {
-      console.log('[signInPortalUser] No user in data');
       return { data: null, error: new Error('User not found') };
     }
 
-    console.log('[signInPortalUser] Auth SUCCESS, user:', data.user.id);
-    console.log('[signInPortalUser] Returning SUCCESS - NO portal_users queries');
     return { data, error: null };
   } catch (error) {
-    console.error('[signInPortalUser] EXCEPTION:', error);
     return { data: null, error: error as Error };
   }
 }
@@ -173,7 +166,6 @@ export async function getPortalUserProfile(
     const { data, error } = await Promise.race([query, timeoutPromise]);
 
     if (error) {
-      console.error('[getPortalUserProfile] Error:', error.message);
       return { data: null, error };
     }
 
@@ -185,7 +177,6 @@ export async function getPortalUserProfile(
       return { data: null, error: null };
     }
     
-    console.error('[getPortalUserProfile] Exception:', error);
     return { data: null, error: error as Error };
   }
 }
@@ -220,7 +211,6 @@ export async function updatePortalUserProfile(
     const { data, error } = await Promise.race([query, timeoutPromise]);
 
     if (error) {
-      console.error('[updatePortalUserProfile] Error:', error.message);
       return { data: null, error };
     }
 
@@ -230,7 +220,6 @@ export async function updatePortalUserProfile(
       console.warn('[updatePortalUserProfile] Timeout - update may have succeeded');
       return { data: null, error: new Error('Update timeout') };
     }
-    console.error('[updatePortalUserProfile] Exception:', error);
     return { data: null, error: error as Error };
   }
 }
@@ -285,11 +274,6 @@ export async function addToPortalFavorites(
   professionalId: string
 ): Promise<SupabaseResponse<PortalFavorite>> {
   try {
-    console.log('🔄 [addToPortalFavorites] Inizio:', {
-      userId,
-      professionalId,
-      timestamp: new Date().toISOString()
-    });
 
     const { data, error } = await supabase
       .from('portal_favorites')
@@ -300,24 +284,13 @@ export async function addToPortalFavorites(
       .select()
       .single();
 
-    console.log('📦 [addToPortalFavorites] Risultato:', {
-      hasData: !!data,
-      hasError: !!error,
-      errorMessage: error?.message,
-      errorCode: error?.code,
-      errorDetails: error?.details,
-      errorHint: error?.hint
-    });
 
     if (error) {
-      console.error('❌ [addToPortalFavorites] Errore:', error);
       return { data: null, error };
     }
 
-    console.log('✅ [addToPortalFavorites] Successo:', data);
     return { data, error: null };
   } catch (error) {
-    console.error('💥 [addToPortalFavorites] Exception:', error);
     return { data: null, error: error as Error };
   }
 }
