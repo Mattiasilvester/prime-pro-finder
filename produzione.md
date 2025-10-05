@@ -3,7 +3,7 @@
 ## PRE-DEPLOY
 - [x] Mock data sostituiti (Homepage ✅, vetrina_professionals ✅)
 - [x] Variabili ambiente configurate (.env.example ✅)
-- [ ] Build senza errori (da testare prima deploy)
+- [x] **Build senza errori (testato ✅)**
 - [ ] SEO metadata completi
 - [x] Test mobile (UI components testati ✅)
 - [x] Filter persistence verificata ✅
@@ -13,6 +13,8 @@
 - [x] Sistema autenticazione completo ✅
 - [x] Sistema preferiti funzionante ✅
 - [x] Upload foto profilo ✅
+- [x] **Performance optimization (bundle 454KB) ✅**
+- [x] **Code quality (console cleanup, type safety) ✅**
 
 ## COMPONENTI PRODUCTION-READY ✅
 - [x] Header (desktop & mobile)

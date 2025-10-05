@@ -322,6 +322,9 @@ const schema = z.object({
 - **Scroll-to-top button**
 - **Database schema completo (portal_* tables)**
 - **Pagine Login/Registrazione/Profilo/Preferiti**
+- **Performance optimization (bundle 454KB, -38%)**
+- **Code quality (console cleanup, type safety)**
+- **Code splitting e lazy loading**
 
 ### **🚧 IN PROGRESS:**
 - Loading states completi

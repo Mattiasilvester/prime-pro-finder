@@ -19,6 +19,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2025-10-01
+
+### 🚀 Performance
+- **BREAKING**: Bundle size ridotto del 38% (738KB → 454KB)
+- **NEW**: Code splitting con lazy loading
+- **NEW**: 32 chunk ottimizzati per performance
+
+### 🧹 Code Quality
+- **FIXED**: Rimossi 92 console.log di debug
+- **FIXED**: Allineamento interfacce TypeScript
+- **FIXED**: CSS specificità ottimizzata (77 !important rimossi)
+- **FIXED**: Route di test rimosse (/mock, /test)
+
+### 🔧 Technical
+- **NEW**: Lazy loading per tutte le pagine
+- **NEW**: Suspense boundaries
+- **IMPROVED**: Type safety garantita
+- **IMPROVED**: Bundle optimization
+
+### 📱 Features
+- **MAINTAINED**: Tutte le funzionalità esistenti
+- **MAINTAINED**: Autenticazione Supabase
+- **MAINTAINED**: Sistema preferiti
+- **MAINTAINED**: Upload foto profilo
+
+---
+
 ## [3.0.0] - 2025-10-01
 
 ### ✨ Added
